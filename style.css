@@ -1,3 +1,60 @@
+* {
+   padding: 0;
+   margin: 0; 
+   overflow: hidden;
+}
+
 body {
-    
+   height: 100vh;
+   width: 100vw;
+   font-family: 'Cormorant Garamond', serif;
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.navBar {
+    width: 100%;
+    height: 10%;
+    background-color: black;
+}
+
+.mainMenu {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    list-style-type: none;
+    font-size: 24px;
+}
+
+.mainMenuItem {
+    padding: 8px 16px;
+}
+
+.mainMenuItem a {
+    text-decoration: none;
+    padding: 8px 16px;
+    color: white;
+}
+
+.mainWindow {
+    background-image: linear-gradient(to bottom right, blue, white);
+    height: 100%;
+    width: 100%;
+}
+
+main {
+    height: 100%;
+    width: 100%;
+}
+
+.windowFOocsu {
+    width: 80%;
+    height: 70%;
+    background-color: black;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+    margin-bottom: 50px;
+    border: 5px dashed white;
 }
