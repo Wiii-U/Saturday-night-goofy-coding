@@ -58,6 +58,15 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-end;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.canvas {
+  width: fit-content;
+  height: fit-content;
+  padding: 1.2rem;
 }
 
 #canvas {
