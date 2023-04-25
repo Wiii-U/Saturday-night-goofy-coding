@@ -70,57 +70,83 @@ let sphere = {
 }
 
 function movement() {
-    window.addEventListener("keydown", onKeyDown, false);
-    window.addEventListener("keyup", onKeyUp, false);
+    let keys = [];
 
-    function onKeyDown(event) {
-        var keyCode = event.keyCode;
-        switch (keyCode) {
-            case 68: //D
-                keyd = true;
-                break;
-            case 32: //spaaaaaaaaaaaaaaace
-                keyspace = true;
-                break;
-            case 65: //A
-                keya = true;
-                break;
-            case 37:
-                keya = true;
-                break;
-            case 38:
-                keyspace = true;
-                break;
-            case 39:
-                keyd = true;
-                break;
-        }
+    document.addEventListener("keydown", (event) => {
+    keys.push(event.key);
+    if (keys.includes("ArrowDown") && keys.includes("ArrowLeft")) {
+        ball.posX -= speedX;
+        ball.posY += speedY;
     }
+
+    if (keys.includes("ArrowUp") && keys.includes("ArrowLeft")) {
+        console.log("save"); // conditional here //*
+    }
+
+    if (keys.includes("ArrowUp") && keys.includes("ArrowRight")) {
+        console.log("save"); // conditional here //*
+    }
+
+    if (keys.includes("ArrowDown") && keys.includes("ArrowRight")) {
+        console.log("save"); // conditional here //*
+    }
+
+    });
+
+    // clear the keys array
+    document.addEventListener("keyup", () => {
+        keys = [];
+    });
+}
+
+function onKeyDown(event) {
+    var keyCode = event.code;
+    switch (keyCode) {
+        case 68: //D
+            keyd = true;
+            break;
+        case 32: //spaaaaaaaaaaaaaaace
+            keyspace = true;
+            break;
+        case 65: //A
+            keya = true;
+            break;
+        case 37:
+            keya = true;
+            break;
+        case 38:
+            keyspace = true;
+            break;
+        case 39:
+            keyd = true;
+            break;
+    }       
+}
     
-    function onKeyUp(event) {
-        var keyCode = event.keyCode;
-        switch (keyCode) {
-            case 68: //dddddd
-                keyd = false;
-                break;
-            case 32: //spaaaaaaaaaaaaaaaaaaaaaace
-                keyspace = false;
-                break;
-            case 65: //aaaaa
-                keya = false;
-                break;
-            case 37:
-                keya = false;
-                break;
-            case 38:
-                keyspace = false;
-                break;
-            case 39:
-                keyd = false;
-                break;
-        }
+function onKeyUp(event) {
+    var keyCode = event.code;
+    switch (keyCode) {
+        case 68: //dddddd
+            keyd = false;
+            break;
+        case 32: //spaaaaaaaaaaaaaaaaaaaaaace
+            keyspace = false;
+            break;
+        case 65: //aaaaa
+            keya = false;
+            break;
+        case 37:
+            keya = false;
+            break;
+        case 38:
+            keyspace = false;
+            break;
+        case 39:
+            keyd = false;
+            break;
     }
 }
+
 
 function drawBall(ball) {
     penn.fillStyle = ball.color;
@@ -186,8 +212,8 @@ function clearCanvas() {
 
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 function update() {
-    movement()
     clearCanvas()
+    movement()
     drawBall(sphere)
     collisionControl(sphere)
 }
