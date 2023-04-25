@@ -41,9 +41,54 @@ class enemy{
     }
 }
 
+let sphere = {
+    color: "red",
+    radius: 20,
+    posX: 95,
+    posY: canvas.mid_height - (10),
+}
+
 // Deklarera spelaren och andra klasser.
 const player1 = new player("artistan", 20, 60, canvas.height - 60, 20, 100, 0, false);
 const enemy1 = new enemy("cucckck", 20, 60,canvas.height - 60, 20, 100, 0);
+
+
+// Define keys and an array to keep key states
+// Global key log;
+var keyState = [];
+const KEY_UP = 38;
+const KEY_DOWN = 40;
+const KEY_LEFT = 37;
+const KEY_RIGHT = 39;
+console.log(KEY_DOWN);
+console.log(KEY_LEFT);
+console.log(KEY_RIGHT);
+console.log(KEY_UP);
+
+
+// Create a logging function
+const keyEventLogger =  function (e) {  keyState[e.code] = e.type == 'keydown';}
+window.addEventListener("keydown", keyEventLogger);
+window.addEventListener("keyup", keyEventLogger);
+
+// Define something to move
+const MOVE_SPEED = 5;
+
+// In the main loop;
+function executeMoves(object) {
+    if (keyState[KEY_UP]) {
+        object.posY -= MOVE_SPEED;
+    } 
+    if (keyState[KEY_DOWN]) {
+        object.posY += MOVE_SPEED;
+    }
+    if (keyState[KEY_LEFT]) {
+        object.posX -= MOVE_SPEED;
+    }
+    if (keyState[KEY_RIGHT]) {
+        object.posX += MOVE_SPEED;
+    }
+}
 
 // Funktioner för klockan vid toppen av skärmen/fönstret.
 function startTime() {
@@ -62,91 +107,6 @@ function checkTime(i) {
     return i;
 }
 
-let sphere = {
-    color: "red",
-    radius: 20,
-    posX: 95,
-    posY: canvas.mid_height - (10),
-}
-
-function movement() {
-    let keys = [];
-
-    document.addEventListener("keydown", (event) => {
-    keys.push(event.key);
-    if (keys.includes("ArrowDown") && keys.includes("ArrowLeft")) {
-        ball.posX -= speedX;
-        ball.posY += speedY;
-    }
-
-    if (keys.includes("ArrowUp") && keys.includes("ArrowLeft")) {
-        console.log("save"); // conditional here //*
-    }
-
-    if (keys.includes("ArrowUp") && keys.includes("ArrowRight")) {
-        console.log("save"); // conditional here //*
-    }
-
-    if (keys.includes("ArrowDown") && keys.includes("ArrowRight")) {
-        console.log("save"); // conditional here //*
-    }
-
-    });
-
-    // clear the keys array
-    document.addEventListener("keyup", () => {
-        keys = [];
-    });
-}
-
-function onKeyDown(event) {
-    var keyCode = event.code;
-    switch (keyCode) {
-        case 68: //D
-            keyd = true;
-            break;
-        case 32: //spaaaaaaaaaaaaaaace
-            keyspace = true;
-            break;
-        case 65: //A
-            keya = true;
-            break;
-        case 37:
-            keya = true;
-            break;
-        case 38:
-            keyspace = true;
-            break;
-        case 39:
-            keyd = true;
-            break;
-    }       
-}
-    
-function onKeyUp(event) {
-    var keyCode = event.code;
-    switch (keyCode) {
-        case 68: //dddddd
-            keyd = false;
-            break;
-        case 32: //spaaaaaaaaaaaaaaaaaaaaaace
-            keyspace = false;
-            break;
-        case 65: //aaaaa
-            keya = false;
-            break;
-        case 37:
-            keya = false;
-            break;
-        case 38:
-            keyspace = false;
-            break;
-        case 39:
-            keyd = false;
-            break;
-    }
-}
-
 
 function drawBall(ball) {
     penn.fillStyle = ball.color;
@@ -157,6 +117,7 @@ function drawBall(ball) {
 }
 
 function collisionControl(object) {
+    
     const isCollidingWithRightSide = (object.posX + object.radius >= canvas.width);
     const isCollidingWithLeftSide = (object.posX - object.radius <= 0);
     const isCollidingWithFloor = (object.posY + object.radius >= canvas.height);
@@ -182,38 +143,15 @@ function collisionControl(object) {
     }
 }
 
-function keyPressedDown(event, player) {
-        switch (event.key) {
-            case "ArrowDown":
-                player.
-                break;
-        
-            default:
-                break;
-        }
-        if (event.key === "ArrowDown") {
-            ball.posY += speedY;
-        }
-        if (event.key === "ArrowUp") {
-            ball.posY -= speedY;
-        }
-        if (event.key === "ArrowLeft") {
-            ball.posX -= speedX;
-        }
-        if (event.key === "ArrowRight") {
-            ball.posX += speedX;
-        }
-}
-
 function clearCanvas() {
     penn.fillStyle = "rgba(0, 0, 0, 0.3)";
-    penn.fillRect(0, 0, canvas.width, canvas.height)
+    penn.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 function update() {
     clearCanvas()
-    movement()
+    executeMoves(sphere)
     drawBall(sphere)
     collisionControl(sphere)
 }
@@ -225,5 +163,6 @@ function update() {
 gameStartBtn.addEventListener("click", gameStart);
 
 function gameStart() {
-    setInterval(update, 500 / FPS);
+    requestAnimationFrame(update);
 }
+

@@ -63,11 +63,6 @@ body {
     margin-right: 0;
 }
 
-.canvas {
-  width: fit-content;
-  height: fit-content;
-  padding: 1.2rem;
-}
 
 #canvas {
     position: absolute;
