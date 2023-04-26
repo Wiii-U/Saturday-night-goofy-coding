@@ -8,13 +8,14 @@ canvas.mid_height = canvas.height / 2;
 canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
 const ground = canvas.height;
+const bounce = 0;
 const gravity = {x: 0, y: 0.1};
 penn.fillStyle = "black";
 penn.fillRect(0, 0, canvas.width, canvas.height);
 
 // Intervall och hastighet av kulor.
-let speedX = 5;
-let speedY = 5;
+let speedX = 5; // Horizontal speed.
+let speedY = 7; // Vertical speed.
 
 // Define something to move
 const MOVE_SPEED = 2;
@@ -67,7 +68,7 @@ const KEY_UP = 'ArrowUp';
 const KEY_DOWN = 'ArrowDown';
 const KEY_LEFT = 'ArrowLeft';
 const KEY_RIGHT = 'ArrowRight';
-const KEY_JUMP = "space";
+const KEY_JUMP = "Space";
 
 // Create a logging function
 const keyEventLogger =  function (e) { 
@@ -109,7 +110,9 @@ function startTime() {
 }
 
 function checkTime(i) {
-    if (i < 10) {i = "0" + i};  // lägger till 0 framför siffror < 10
+    if (i < 10) {
+        i += "0";
+    }; // lägger till 0 framför siffror < 10
     return i;
 }
 
@@ -129,15 +132,17 @@ function isAlive(object) {
 }
 
 function animateGravity(object) {
-    object.velocity.x += gravity.x;
-    object.velocity.y += gravity.y;
-    object.posX += object.velocity.x;
-    object.posY += object.velocity.y;
+    object.velocity += gravity.y;
+    object.posY += object.velocity;
     const g = ground - object.height; // adjust for size
     if(object.posY >= g) {  
         object.posY = g - (object.posY - g); // 
-        object.velocity.y = -Math.abs(object.velocity.y);
+        object.velocity = -Math.abs(object.velocity) * bounce;
     }
+}
+
+function animateRestForce(object) {
+
 }
 
 function drawBall(ball) {
@@ -175,21 +180,20 @@ function collisionControl(object) {
 }
 
 function clearCanvas() {
-    penn.fillStyle = "rgba(0, 0, 0, 0.3)";
+    penn.fillStyle = "rgba(0, 0, 0, 0.5)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
+// mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
     executeMoves(player1)
     clearCanvas()
     drawPlayers(player1)
+    animateGravity(player1)
     collisionControl(player1)
     requestAnimationFrame(mainLoop);
 }
 
-// setInterval kör en funktion med jämna mellanrum.
-// Argument 1 är funktionen som ska köras.
-// Argument 2 är hur många millisekunder det ska vara mellan körningarna.
-
+// gameStartBtn är en knapp, som kör huvudfunktionen om den klickas.
 gameStartBtn.addEventListener("click", mainLoop);
