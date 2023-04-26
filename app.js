@@ -11,7 +11,6 @@ penn.fillRect(0, 0, canvas.width, canvas.height);
 
 
 // Intervall och hastighet av kulor.
-const FPS = 60;
 let speedX = 5;
 let speedY = 5;
 
@@ -55,38 +54,42 @@ const enemy1 = new enemy("cucckck", 20, 60,canvas.height - 60, 20, 100, 0);
 
 // Define keys and an array to keep key states
 // Global key log;
-var keyState = [];
-const KEY_UP = 38;
-const KEY_DOWN = 40;
-const KEY_LEFT = 37;
-const KEY_RIGHT = 39;
+const keyState = {};
+const KEY_UP = 'ArrowUp';
+const KEY_DOWN = 'ArrowDown';
+const KEY_LEFT = 'ArrowLeft';
+const KEY_RIGHT = 'ArrowRight';
 console.log(KEY_DOWN);
 console.log(KEY_LEFT);
 console.log(KEY_RIGHT);
 console.log(KEY_UP);
 
 
+
 // Create a logging function
-const keyEventLogger =  function (e) {  keyState[e.code] = e.type == 'keydown';}
-window.addEventListener("keydown", keyEventLogger);
-window.addEventListener("keyup", keyEventLogger);
+const keyEventLogger =  function (e) {  
+    keyState[e.code] = e.type == 'keydown';
+    console.log(keyState);
+}
+document.addEventListener('keydown', keyEventLogger);
+document.addEventListener('keyup', keyEventLogger);
 
 // Define something to move
-const MOVE_SPEED = 5;
+const MOVE_SPEED = 2;
 
 // In the main loop;
 function executeMoves(object) {
-    if (keyState[KEY_UP]) {
-        object.posY -= MOVE_SPEED;
+    if (keyState[KEY_UP]) {       
+        object.posY -= speedY;
     } 
-    if (keyState[KEY_DOWN]) {
-        object.posY += MOVE_SPEED;
+    if (keyState[KEY_DOWN]) {        
+        object.posY += speedY;
     }
-    if (keyState[KEY_LEFT]) {
-        object.posX -= MOVE_SPEED;
+    if (keyState[KEY_LEFT]) {        
+        object.posX -= speedX;
     }
-    if (keyState[KEY_RIGHT]) {
-        object.posX += MOVE_SPEED;
+    if (keyState[KEY_RIGHT]) {      
+        object.posX += speedX;
     }
 }
 
@@ -117,7 +120,6 @@ function drawBall(ball) {
 }
 
 function collisionControl(object) {
-    
     const isCollidingWithRightSide = (object.posX + object.radius >= canvas.width);
     const isCollidingWithLeftSide = (object.posX - object.radius <= 0);
     const isCollidingWithFloor = (object.posY + object.radius >= canvas.height);
@@ -149,20 +151,16 @@ function clearCanvas() {
 }
 
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
-function update() {
-    clearCanvas()
+function mainLoop() {
     executeMoves(sphere)
+    clearCanvas()
     drawBall(sphere)
     collisionControl(sphere)
+    requestAnimationFrame(mainLoop);
 }
 
 // setInterval kör en funktion med jämna mellanrum.
 // Argument 1 är funktionen som ska köras.
 // Argument 2 är hur många millisekunder det ska vara mellan körningarna.
 
-gameStartBtn.addEventListener("click", gameStart);
-
-function gameStart() {
-    requestAnimationFrame(update);
-}
-
+gameStartBtn.addEventListener("click", mainLoop);
