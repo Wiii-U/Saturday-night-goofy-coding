@@ -14,8 +14,6 @@ penn.fillStyle = "black";
 penn.fillRect(0, 0, canvas.width, canvas.height);
 
 
-
-
 // Intervall och hastighet av kulor.
 let speedX = 5; // Horizontal speed.
 let speedY = 7; // Vertical speed.
@@ -64,8 +62,8 @@ let bullet = {
 
 
 // Deklarera spelaren och andra klasser.
-let player1 = new player("artistan", "red", 'Images/Greed2.png', 30, 60, canvas.height - 60, 20, 0, 0, 100, 0, false);
-let enemy1 = new enemy("cucckck", "red", 30, 60, canvas.height - 60, 20, 0, 100, 0);
+let player1 = new player("artistan", "red", 'Images/Greed2.png', 50, 60, 60, 30, 0, 0, 100, 0, false);
+let enemy1 = new enemy("cucckck", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
 
 
 // Define keys and an array to keep key states
@@ -75,7 +73,8 @@ const KEY_UP = 'ArrowUp';
 const KEY_DOWN = 'ArrowDown';
 const KEY_LEFT = 'ArrowLeft';
 const KEY_RIGHT = 'ArrowRight';
-const KEY_SPACE = "Space";
+const KEY_SPACE = 'Space';
+const KEY_ENTER = 'Enter';
 
 // Create a logging function
 const keyEventLogger =  function (e) { 
@@ -135,9 +134,70 @@ const drawImage = (object) => {
     }
 }
 
+var playerImage = new Image();
+playerImage.src = "Images/Greed2.png";
+
+var playerModel = sprite({
+    context: canvas.getContext("2d"),
+    width: 64,
+    height: 32,
+    image: playerImage,
+    numberOfFrames: 2,
+	ticksPerFrame: 4,
+});
+
+function drawPlayerModelLoop() {
+    playerModel.update();
+    playerModel.render();
+    requestAnimationFrame(drawPlayerModelLoop);
+}
+	
+function sprite (options) {
+
+    var that = {},
+        frameIndex = 0,
+        tickCount = 0,
+        ticksPerFrame = options.ticksPerFrame || 0,
+        numberOfFrames = options.numberOfFrames || 1;
+    
+    that.context = options.context;
+    that.width = options.width;
+    that.height = options.height;
+    that.image = options.image;
+    
+    that.update = function () {
+
+        tickCount += 1;
+
+        if (tickCount > ticksPerFrame) {
+
+            tickCount = 0;
+            
+            // If the current frame index is in range
+            if (frameIndex < numberOfFrames - 1) {	
+                // Go to the next frame
+                frameIndex += 1;
+            } else {
+                frameIndex = 0;
+            }
+        }
+    };
+    
+    that.render = function () {
+    
+        // Clear the canvas
+        penn.fillStyle = "black";
+        penn.fillRect(0, 0, that.width, that.height);
+        
+        // Draw the animation
+        that.context.drawImage(that.image, frameIndex * that.width / numberOfFrames, 0, that.width / numberOfFrames, that.height, player1.posX, player1.posY, that.width / numberOfFrames, that.height);
+    };
+    
+    return that;
+}
+
 function isAlive(object) {
     if (object.health <= 0) {
-        alert('YOU ARE DEAD!')
         return false
     }
     else {
@@ -148,18 +208,12 @@ function isAlive(object) {
 function animateGravity(object) {
     object.yvelocity += gravity.y;
     object.xvelocity += gravity.x;
-    object.posX += object.xvelocity
+    object.posX += object.xvelocity;
     object.posY += object.yvelocity;
     const g = ground - object.height; // adjust for size
     if(object.posY >= g) {  
         object.posY = g - (object.posY - g); // 
         object.yvelocity = -Math.abs(object.yvelocity) * bounce;
-    }
-}
-
-function animateRestForce(object) {
-    if (object.velocity > 0) {
-        // Do something. T.ex momentum after a movement.
     }
 }
 
@@ -181,19 +235,15 @@ function collisionControl(object) {
     // hastigheten, i y-led, så den riktas uppåt.
     if (isCollidingWithFloor) {
         object.posY = canvas.height - object.height;
-        speedY = -speedY;
     }
-    else if (isCollidingWithRightSide) {
+    if (isCollidingWithRightSide) {
         object.posX = canvas.width - object.width;
-        speedX = -speedX;
     }
-    else if (isCollidingWithLeftSide) {
-        object.posX = 0 + object.width;
-        speedX = -speedX;
+    if (isCollidingWithLeftSide) {
+        object.posX = 0;
     }
-    else if (isCollidingWithRoof) {
+    if (isCollidingWithRoof) {
         object.posY = 0 + object.height;
-        speedY = -speedY;
     }
 }
 
@@ -205,22 +255,21 @@ function clearCanvas() {
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
-    if (player1.health > 0) {
-        executeMoves(player1)
-        clearCanvas()
-        // drawImage(player1)
-        drawPlayers(player1)
-        animateGravity(player1)
+    if (isAlive(player1)) {
+        executeMoves(player1);
+        clearCanvas();
+        drawPlayers(player1);
+        drawPlayerModelLoop();
+        animateGravity(player1);
         collisionControl(player1);
-        collisionControl(bullet);
-        requestAnimationFrame(mainLoop)
+        requestAnimationFrame(mainLoop);
     }
     else {
         penn.font = "'30px Cormorant Garamond', serif";
         penn.fillText('YOU ARE DEAD!', 0 , ceiling);
-        penn.fillText('Press SPACE to Restart', 0 , ground);
+        penn.fillText('Press ENTER to Restart', 0 , ground);
         document.addEventListener('keydown', keyEventLogger);
-        if (keyState[KEY_SPACE]) {
+        if (keyState[KEY_ENTER]) {
             player1.health = 100;
         }
     }
