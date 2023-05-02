@@ -53,17 +53,24 @@ class enemy{
     }
 }
 
-let bullet = {
-    color: "red",
-    radius: 10,
-    posX: 0,
-    posY: 0,
+class projectile{
+    constructor(name, color, width, height, radius, posX, posY, yvelocity, xvelocity) {
+        this.name = name;
+        this.color = color;
+        this.width = width;
+        this.height = height;
+        this.radius = radius;
+        this.posX = posX;
+        this.posY = posY;
+        this.yvelocity = yvelocity;
+        this.xvelocity = xvelocity;
+    }
 }
 
-
 // Deklarera spelaren och andra klasser.
-let player1 = new player("artistan", "white", 'Images/Samurai (1).png', 192, 192, 60, 30, 0, 0, 100, 0, false);
-let enemy1 = new enemy("cucckck", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
+let player1 = new player("Lumbar", "white", 'Images/LumberjackIdleAnimation.png', 192, 192, 60, 30, 0, 0, 100, 0, false);
+let enemy1 = new enemy("Mcucc", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
+let bowlingBall = new projectile('Sploading Bowling Ball', 'black', 30, 30, 20, 0, 0, 0, 0);
 
 
 // Define keys and an array to keep key states
@@ -97,10 +104,6 @@ function executeMoves(object) {
     if (keyState[KEY_RIGHT]) {      
         object.posX += speedX;
     }
-    if (keyState[KEY_SPACE]) {
-        drawProjectile(bullet);
-        bullet.posX += speedX;
-    }
 }
  
 // Funktioner för klockan vid toppen av fönstret.
@@ -133,24 +136,24 @@ const drawImage = (object) => {
     }
 }
 
-var playerImage = new Image();
-playerImage.src = "Images/Samurai (1).png";
-
-var playerModel = sprite({
-    context: canvas.getContext("2d"),
-    width: 1152,
-    height: 192,
-    image: playerImage,
-    numberOfFrames: 6,
-	ticksPerFrame: 3,
-});
-
-function drawPlayerModelLoop() {
+function drawPlayerModelLoop(playerModel) {
     playerModel.update();
     playerModel.render();
     requestAnimationFrame(drawPlayerModelLoop);
 }
-	
+
+var LumberJackIdleAnimationImg = new Image();
+LumberJackIdleAnimationImg.src = "Images/LumberjackIdleAnimation.png";
+
+const LumberJackIdleAnimation = sprite({
+    context: canvas.getContext("2d"),
+    width: 576,
+    height: 192,
+    image: LumberJackIdleAnimationImg,
+    numberOfFrames: 3,
+	ticksPerFrame: 30,
+});	
+
 function sprite (options) {
 
     var that = {},
@@ -258,12 +261,11 @@ function reload() {
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
-    // reload()
     if (isAlive(player1)) {
         executeMoves(player1);
         clearCanvas();
         drawPlayers(player1);
-        drawPlayerModelLoop();
+        drawPlayerModelLoop(LumberJackIdleAnimation);
         animateGravity(player1);
         collisionControl(player1);
         requestAnimationFrame(mainLoop);
@@ -279,5 +281,5 @@ function mainLoop() {
     }
 }
 
-// gameStartBtn är en knapp, som kör huvudfunktionen om den klickas.
+// gameStartBtn är knappen som kör huvudfunktionen mainloop(), om den klickas.
 gameStartBtn.addEventListener("click", mainLoop);
