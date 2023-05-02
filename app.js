@@ -10,7 +10,7 @@ const ceiling = 0;
 const ground = canvas.height;
 const bounce = 0;
 const gravity = {x: 0, y: 0.1};
-penn.fillStyle = "black";
+penn.fillStyle = "white";
 penn.fillRect(0, 0, canvas.width, canvas.height);
 
 
@@ -62,7 +62,7 @@ let bullet = {
 
 
 // Deklarera spelaren och andra klasser.
-let player1 = new player("artistan", "red", 'Images/Greed2.png', 50, 60, 60, 30, 0, 0, 100, 0, false);
+let player1 = new player("artistan", "white", 'Images/Samurai (1).png', 192, 192, 60, 30, 0, 0, 100, 0, false);
 let enemy1 = new enemy("cucckck", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
 
 
@@ -79,7 +79,6 @@ const KEY_ENTER = 'Enter';
 // Create a logging function
 const keyEventLogger =  function (e) { 
     keyState[e.code] = e.type == 'keydown';
-    console.log(keyState);
 }
 document.addEventListener('keydown', keyEventLogger);
 document.addEventListener('keyup', keyEventLogger);
@@ -135,15 +134,15 @@ const drawImage = (object) => {
 }
 
 var playerImage = new Image();
-playerImage.src = "Images/Greed2.png";
+playerImage.src = "Images/Samurai (1).png";
 
 var playerModel = sprite({
     context: canvas.getContext("2d"),
-    width: 64,
-    height: 32,
+    width: 1152,
+    height: 192,
     image: playerImage,
-    numberOfFrames: 2,
-	ticksPerFrame: 4,
+    numberOfFrames: 6,
+	ticksPerFrame: 3,
 });
 
 function drawPlayerModelLoop() {
@@ -173,9 +172,9 @@ function sprite (options) {
 
             tickCount = 0;
             
-            // If the current frame index is in range
+            // Om det nuvarande indexet är i intervallet.
             if (frameIndex < numberOfFrames - 1) {	
-                // Go to the next frame
+                // Gå till nästa frame
                 frameIndex += 1;
             } else {
                 frameIndex = 0;
@@ -185,11 +184,11 @@ function sprite (options) {
     
     that.render = function () {
     
-        // Clear the canvas
-        penn.fillStyle = "black";
+        // Tömma canvasen
+        penn.fillStyle = "white";
         penn.fillRect(0, 0, that.width, that.height);
         
-        // Draw the animation
+        // Rita animationen
         that.context.drawImage(that.image, frameIndex * that.width / numberOfFrames, 0, that.width / numberOfFrames, that.height, player1.posX, player1.posY, that.width / numberOfFrames, that.height);
     };
     
@@ -248,13 +247,18 @@ function collisionControl(object) {
 }
 
 function clearCanvas() {
-    penn.fillStyle = "rgba(0, 0, 0, 0.5)";
+    penn.fillStyle = "rgba(255, 255, 255, 0.5)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function reload() {
+    window.location.reload()
 }
 
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
+    // reload()
     if (isAlive(player1)) {
         executeMoves(player1);
         clearCanvas();
