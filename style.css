@@ -44,24 +44,25 @@ body {
     text-decoration: none;
     padding: 8px 16px;
     color: white;
-    box-shadow:12px 12px 2px 1px rgba(0, 0, 0, 0.2);
+    box-shadow:12px 12px 2px 1px rgba(0, 0, 0, 0.432);
 }
 
 .gameWindow {
-    height: 100%;
-    width: 100%;
-    text-align: center;
+    position: relative;
+    width: 1300px;
+    height: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
+    margin-bottom: auto;
 }
 
 #clock {
-    padding: 8px 16px;
     font-size: 36px;
-    width: auto;
-    height: auto;
+    left: 630px;
+    top: 20px;
     color: rgb(0, 0, 0);
-    margin-top: auto;
-    margin-bottom: 0;
-    text-decoration: underline;
+    position: absolute;
 }
 
 #canvas {
@@ -71,8 +72,7 @@ body {
     left: 0;
     right: 0;
     margin:auto;
-    width: 70%;
-    height: 70%;
+    z-index: 0;
     box-shadow: rgba(240, 46, 46, 0.4) -5px 5px, rgba(240, 46, 46, 0.3) -10px 10px, rgba(240, 46, 46, 0.2) -15px 15px, rgba(240, 46, 46, 0.1) -20px 20px, rgba(240, 46, 46, 0.05) -25px 25px;
     outline:transparent;
 }

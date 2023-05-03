@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond&family=Josefin+Sans:ital@1&display=swap" rel="stylesheet">
     <title>Saturday Night Gibb</title>
 </head>
-<body onload="startTime()">
+<body>
     <header>     
         <div class="gameOptions">
             <nav>
@@ -26,9 +26,9 @@
     </header>
     <main>
         <div class="gameWindow" id="gameWindow">
-            <div id="clock"></div>
             <button class="gameStartBtn" id="gameStartBtn" role="button"><span class="text">START GAME</span><span>START!</span></button>
-            <canvas id="canvas" tabindex="1"></canvas>
+            <canvas id="canvas" width="1300px" height="700px"></canvas>
+            <div id="clock"></div>
         </div>
     </main>
     <script src="app.js"></script>

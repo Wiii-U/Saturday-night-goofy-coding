@@ -1,9 +1,8 @@
 // Deklarerar de fundamentala variablerna.
 const gameStartBtn = document.getElementById("gameStartBtn");
 const canvas = document.getElementById("canvas");
+const clock = document.getElementById('clock');
 const penn = canvas.getContext("2d");
-canvas.height = window.innerHeight * 0.6;
-canvas.width = window.innerWidth * 0.7;
 canvas.mid_height = canvas.height / 2;
 canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
@@ -22,11 +21,10 @@ let speedY = 7; // Vertical speed.
 const MOVE_SPEED = 2;
 
 class player{
-    constructor(name, color, imagesrc, width, height, posX, posY, yvelocity, xvelocity, health, shield, weapon) {
+    constructor(name, color, image, width, height, posX, posY, yvelocity, xvelocity, health, shield, weapon) {
         this.name = name;
         this.color = color;
         this.image = new Image();
-        this.image.src = imagesrc;
         this.width = width;
         this.height = height;
         this.posX = posX;
@@ -36,6 +34,16 @@ class player{
         this.health = health;
         this.shield = shield;
         this.weapon = weapon;
+    }
+
+    update() {
+        // Uppdatera spelarmodellen
+        // Till exempel, uppdatera positionen eller tillståndet.
+    }
+
+    render(context) {
+        // Rita spelarmodellen
+        context.drawImage(this.image, this.posX, this.posY);
     }
 }
 
@@ -67,11 +75,55 @@ class projectile{
     }
 }
 
-// Deklarera spelaren och andra klasser.
-let player1 = new player("Lumbar", "white", 'Images/LumberjackIdleAnimation.png', 192, 192, 60, 30, 0, 0, 100, 0, false);
-let enemy1 = new enemy("Mcucc", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
-let bowlingBall = new projectile('Sploading Bowling Ball', 'black', 30, 30, 20, 0, 0, 0, 0);
+class PlayerModel {
+    constructor(x, y, image) {
+      this.posX = x;
+      this.posY = y;
+      this.image = image;
+    }
+  
+    update() {
+      // Uppdatera spelarmodellen
+      // Till exempel, uppdatera positionen eller tillståndet.
+      tickCount += 1;
 
+      if (tickCount > ticksPerFrame) {
+
+          tickCount = 0;
+          
+          // Om det nuvarande indexet är i intervallet.
+          if (frameIndex < numberOfFrames - 1) {	
+              // Gå till nästa frame
+              frameIndex += 1;
+            } 
+          else {
+              frameIndex = 0;
+            }
+        }
+    }
+  
+    render(context) {
+      // Rita spelarmodellen
+      context.drawImage(this.image, this.posX, this.posY);
+    }
+  }
+
+// Initialize, spelaren och andra klasser.
+const player1 = new player("Lumbar", "white", LumberJackIdleAnimationImg.src, 156, 140, 60, 30, 0, 0, 100, 0, false);
+const enemy1 = new enemy("Mcucc", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
+const bowlingBall = new projectile('Sploading Bowling Ball', 'black', 30, 30, 20, 0, 0, 0, 0);
+
+const LumberJackIdleAnimationImg = new Image();
+LumberJackIdleAnimationImg.src = "Images/LumberjackIdleAnimation.png";
+
+const LumberJackIdleAnimation = sprite({
+    context: canvas.getContext("2d"),
+    width: 576,
+    height: 192,
+    image: LumberJackIdleAnimationImg,
+    numberOfFrames: 3,
+	ticksPerFrame: 30,
+});
 
 // Define keys and an array to keep key states
 // Global key log;
@@ -83,14 +135,16 @@ const KEY_RIGHT = 'ArrowRight';
 const KEY_SPACE = 'Space';
 const KEY_ENTER = 'Enter';
 
-// Create a logging function
+
+//Logging function, för keys.
 const keyEventLogger =  function (e) { 
     keyState[e.code] = e.type == 'keydown';
 }
 document.addEventListener('keydown', keyEventLogger);
 document.addEventListener('keyup', keyEventLogger);
 
-// In the main loop;
+
+// Utför rörelserna på karatärerna
 function executeMoves(object) {
     if (keyState[KEY_UP]) {       
         object.posY -= speedY;
@@ -105,22 +159,38 @@ function executeMoves(object) {
         object.posX += speedX;
     }
 }
- 
-// Funktioner för klockan vid toppen av fönstret.
-function startTime() {
-    const today = new Date();
-    let h = today.getHours();
-    let m = today.getMinutes();
-    let s = today.getSeconds();
-    m = checkTime(m);
-    s = checkTime(s);
-    document.getElementById('clock').innerHTML =  h + ":" + m + ":" + s;
-    setTimeout(startTime, 1000);
-}
 
-function checkTime(i) {
-    if (i < 10) {i = "0" + i}; // lägger till 0 framför siffror < 10
-    return i;
+
+// const startingSeconds = 100;
+// let time = startingSeconds;
+
+// // Funktioner för klockan vid toppen av fönstret.
+// function startTime() {
+//     setInterval(updateCountdown(), 1000);
+// }
+
+// function updateCountdown() {
+//     seconds = time;
+//     clock.innerHTML =  `${seconds}`;
+//     time--;
+
+//     if(seconds <= 0) {
+//         time = 0;
+//     }
+// }
+
+
+// Tids variabler för Timer.
+let startTime;
+const startingSeconds = 100;
+let time = startingSeconds;
+
+function startCountdown() {
+    // Spara starttiden
+    startTime = Date.now();
+  
+    // Starta huvudloopen
+    requestAnimationFrame(mainLoop);
 }
 
 function drawPlayers(object) {
@@ -138,21 +208,9 @@ const drawImage = (object) => {
 
 function drawPlayerModelLoop(playerModel) {
     playerModel.update();
-    playerModel.render();
+    playerModel.render(penn);
     requestAnimationFrame(drawPlayerModelLoop);
 }
-
-var LumberJackIdleAnimationImg = new Image();
-LumberJackIdleAnimationImg.src = "Images/LumberjackIdleAnimation.png";
-
-const LumberJackIdleAnimation = sprite({
-    context: canvas.getContext("2d"),
-    width: 576,
-    height: 192,
-    image: LumberJackIdleAnimationImg,
-    numberOfFrames: 3,
-	ticksPerFrame: 30,
-});	
 
 function sprite (options) {
 
@@ -261,7 +319,21 @@ function reload() {
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
-    if (isAlive(player1)) {
+    // Beräkna hur lång tid som har gått sedan starten
+    const elapsedTime = Date.now() - startTime;
+
+    // Beräkna antalet sekunder som är kvar
+    const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
+
+    // Uppdatera nedräkningen
+    clock.innerHTML = `${secondsLeft}`;
+
+    if (secondsLeft <= 0) {
+        // Stoppa huvudloopen när nedräkningen når 0
+        return;
+    }
+
+    if (isAlive(player1) && time > 0) {
         executeMoves(player1);
         clearCanvas();
         drawPlayers(player1);
@@ -270,16 +342,19 @@ function mainLoop() {
         collisionControl(player1);
         requestAnimationFrame(mainLoop);
     }
-    else {
-        penn.font = "'30px Cormorant Garamond', serif";
+
+    if (time <= 0){
+        clearCanvas();
+        penn.font = "'70px Cormorant Garamond', serif";
+        penn.fillStyle = 'black';
         penn.fillText('YOU ARE DEAD!', 0 , ceiling);
-        penn.fillText('Press ENTER to Restart', 0 , ground);
+        penn.fillText('Press ENTER to Restart', 10 , ground);
         document.addEventListener('keydown', keyEventLogger);
         if (keyState[KEY_ENTER]) {
-            player1.health = 100;
+            reload();
         }
     }
 }
 
 // gameStartBtn är knappen som kör huvudfunktionen mainloop(), om den klickas.
-gameStartBtn.addEventListener("click", mainLoop);
+gameStartBtn.addEventListener("click", startCountdown);
