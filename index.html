@@ -16,7 +16,7 @@
         <div class="gameOptions">
             <nav>
                 <ul class="mainMenu">
-                    <li class="mainMenuItem"><button class="button-49" role="button">MENU</button></li>
+                    <li class="mainMenuItem"><button class="button-49" id="mainMenuBtn" role="button">MENU</button></li>
                     <li class="mainMenuItem"><button class="button-49" role="button">SCORE</button></li>
                     <li class="mainMenuItem"><button class="button-49" role="button">RULES</button></li>
                     <li class="mainMenuItem"><button class="button-49" role="button">ABOUT</button></li>
@@ -26,6 +26,7 @@
     </header>
     <main>
         <div class="gameWindow" id="gameWindow">
+            <div class="gameMenu" id="gameMenu"></div>
             <button class="gameStartBtn" id="gameStartBtn" role="button"><span class="text">START GAME</span><span>START!</span></button>
             <canvas id="canvas" width="1300px" height="700px"></canvas>
             <div id="clock"></div>
