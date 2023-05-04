@@ -24,7 +24,7 @@ class player{
     constructor(name, color, image, width, height, posX, posY, yvelocity, xvelocity, health, shield, weapon) {
         this.name = name;
         this.color = color;
-        this.image = new Image();
+        this.image = image;
         this.width = width;
         this.height = height;
         this.posX = posX;
@@ -35,17 +35,8 @@ class player{
         this.shield = shield;
         this.weapon = weapon;
     }
-
-    update() {
-        // Uppdatera spelarmodellen
-        // Till exempel, uppdatera positionen eller tillståndet.
-    }
-
-    render(context) {
-        // Rita spelarmodellen
-        context.drawImage(this.image, this.posX, this.posY);
-    }
 }
+
 
 class enemy{
     constructor(name, color, width, height, posX, posY, velocity, health, shield) {
@@ -61,6 +52,7 @@ class enemy{
     }
 }
 
+
 class projectile{
     constructor(name, color, width, height, radius, posX, posY, yvelocity, xvelocity) {
         this.name = name;
@@ -75,43 +67,51 @@ class projectile{
     }
 }
 
-class PlayerModel {
-    constructor(x, y, image) {
-      this.posX = x;
-      this.posY = y;
-      this.image = image;
-    }
-  
-    update() {
-      // Uppdatera spelarmodellen
-      // Till exempel, uppdatera positionen eller tillståndet.
-      tickCount += 1;
 
-      if (tickCount > ticksPerFrame) {
+function sprite (options) {
 
-          tickCount = 0;
-          
-          // Om det nuvarande indexet är i intervallet.
-          if (frameIndex < numberOfFrames - 1) {	
-              // Gå till nästa frame
-              frameIndex += 1;
-            } 
-          else {
-              frameIndex = 0;
+    let that = {},
+        frameIndex = 0,
+        tickCount = 0,
+        ticksPerFrame = options.ticksPerFrame || 0,
+        numberOfFrames = options.numberOfFrames || 1;
+    
+    that.context = options.context;
+    that.width = options.width;
+    that.height = options.height;
+    that.image = options.image;
+    
+    that.update = function () {
+
+        tickCount += 1;
+
+        if (tickCount > ticksPerFrame) {
+
+            tickCount = 0;
+            
+            // Om det nuvarande indexet är i intervallet.
+            if (frameIndex < numberOfFrames - 1) {	
+                // Gå till nästa frame
+                frameIndex += 1;
+            } else {
+                frameIndex = 0;
             }
         }
-    }
-  
-    render(context) {
-      // Rita spelarmodellen
-      context.drawImage(this.image, this.posX, this.posY);
-    }
-  }
+    };
+    
+    that.render = function () {
+    
+        // Tömma canvasen
+        penn.fillStyle = "white";
+        penn.fillRect(0, 0, that.width, that.height);
+        
+        // Rita animationen
+        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames, 0, that.width / numberOfFrames, that.height, player1.posX, player1.posY, that.width / numberOfFrames, that.height);
+    };
+    
+    return that;
+}
 
-// Initialize, spelaren och andra klasser.
-const player1 = new player("Lumbar", "white", LumberJackIdleAnimationImg.src, 156, 140, 60, 30, 0, 0, 100, 0, false);
-const enemy1 = new enemy("Mcucc", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
-const bowlingBall = new projectile('Sploading Bowling Ball', 'black', 30, 30, 20, 0, 0, 0, 0);
 
 const LumberJackIdleAnimationImg = new Image();
 LumberJackIdleAnimationImg.src = "Images/LumberjackIdleAnimation.png";
@@ -124,6 +124,18 @@ const LumberJackIdleAnimation = sprite({
     numberOfFrames: 3,
 	ticksPerFrame: 30,
 });
+
+
+// Initialize, spelaren och andra klasser.
+const enemy1 = new enemy("Mcucc", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
+const bowlingBall = new projectile('Sploading Bowling Ball', 'black', 30, 30, 20, 0, 0, 0, 0);
+const player1 = new player("Lumbar", "white", LumberJackIdleAnimationImg.src, 156, 140, 60, 30, 0, 0, 100, 0, false);
+
+
+function drawPlayerModelLoop(playerModel) {
+    playerModel.update();
+    playerModel.render();
+}
 
 // Define keys and an array to keep key states
 // Global key log;
@@ -161,25 +173,6 @@ function executeMoves(object) {
 }
 
 
-// const startingSeconds = 100;
-// let time = startingSeconds;
-
-// // Funktioner för klockan vid toppen av fönstret.
-// function startTime() {
-//     setInterval(updateCountdown(), 1000);
-// }
-
-// function updateCountdown() {
-//     seconds = time;
-//     clock.innerHTML =  `${seconds}`;
-//     time--;
-
-//     if(seconds <= 0) {
-//         time = 0;
-//     }
-// }
-
-
 // Tids variabler för Timer.
 let startTime;
 const startingSeconds = 100;
@@ -193,10 +186,12 @@ function startCountdown() {
     requestAnimationFrame(mainLoop);
 }
 
+
 function drawPlayers(object) {
     penn.fillStyle = object.color;
     penn.fillRect(object.posX, object.posY, object.width, object.height);
 }
+
 
 const drawImage = (object) => {
     const image = new Image();
@@ -206,55 +201,6 @@ const drawImage = (object) => {
     }
 }
 
-function drawPlayerModelLoop(playerModel) {
-    playerModel.update();
-    playerModel.render(penn);
-    requestAnimationFrame(drawPlayerModelLoop);
-}
-
-function sprite (options) {
-
-    var that = {},
-        frameIndex = 0,
-        tickCount = 0,
-        ticksPerFrame = options.ticksPerFrame || 0,
-        numberOfFrames = options.numberOfFrames || 1;
-    
-    that.context = options.context;
-    that.width = options.width;
-    that.height = options.height;
-    that.image = options.image;
-    
-    that.update = function () {
-
-        tickCount += 1;
-
-        if (tickCount > ticksPerFrame) {
-
-            tickCount = 0;
-            
-            // Om det nuvarande indexet är i intervallet.
-            if (frameIndex < numberOfFrames - 1) {	
-                // Gå till nästa frame
-                frameIndex += 1;
-            } else {
-                frameIndex = 0;
-            }
-        }
-    };
-    
-    that.render = function () {
-    
-        // Tömma canvasen
-        penn.fillStyle = "white";
-        penn.fillRect(0, 0, that.width, that.height);
-        
-        // Rita animationen
-        that.context.drawImage(that.image, frameIndex * that.width / numberOfFrames, 0, that.width / numberOfFrames, that.height, player1.posX, player1.posY, that.width / numberOfFrames, that.height);
-    };
-    
-    return that;
-}
 
 function isAlive(object) {
     if (object.health <= 0) {
@@ -264,6 +210,7 @@ function isAlive(object) {
         return true
     }
 }
+
 
 function animateGravity(object) {
     object.yvelocity += gravity.y;
@@ -277,6 +224,7 @@ function animateGravity(object) {
     }
 }
 
+
 function drawProjectile(object) {
     penn.fillStyle = object.color;
     penn.beginPath();
@@ -284,6 +232,7 @@ function drawProjectile(object) {
     penn.closePath();
     penn.fill();
 }
+
 
 function collisionControl(object) {
     const isCollidingWithRightSide = (object.posX + object.width >= canvas.width);
@@ -307,14 +256,17 @@ function collisionControl(object) {
     }
 }
 
+
 function clearCanvas() {
     penn.fillStyle = "rgba(255, 255, 255, 0.5)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
 }
 
+
 function reload() {
     window.location.reload()
 }
+
 
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
@@ -355,6 +307,7 @@ function mainLoop() {
         }
     }
 }
+
 
 // gameStartBtn är knappen som kör huvudfunktionen mainloop(), om den klickas.
 gameStartBtn.addEventListener("click", startCountdown);
