@@ -10,16 +10,13 @@ canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
 const ground = canvas.height;
 const bounce = 0;
-const gravity = {x: 0, y: 0.1};
+const gravity = {x: 0, y: 0.07};
 penn.fillStyle = "white";
 penn.fillRect(0, 0, canvas.width, canvas.height);
 
 
-
-
-
 class player{
-    constructor(name, color, image, width, height, posX, posY, yvelocity, xvelocity, health, shield, weapon) {
+    constructor(name, color, image, width, height, posX, posY, yvelocity, xvelocity, health, shield) {
         this.name = name;
         this.color = color;
         this.image = image;
@@ -31,7 +28,6 @@ class player{
         this.xvelocity = xvelocity;
         this.health = health;
         this.shield = shield;
-        this.weapon = weapon;
     }
 }
 
@@ -102,10 +98,10 @@ function sprite (options) {
     
         // Tömma canvasen
         penn.fillStyle = "white";
-        penn.fillRect(0, 0, that.width, that.height);
+        penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
         
         // Rita animationen
-        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames, 0, that.width / numberOfFrames, that.height, player1.posX, player1.posY, that.width / numberOfFrames, that.height);
+        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, player1.posX, player1.posY, that.width / numberOfFrames, that.height);
     };
     
     return that;
@@ -118,17 +114,30 @@ LumberJackIdleAnimationImg.src = "Images/LumberjackIdleAnimation.png";
 const LumberJackIdleAnimation = sprite({
     context: canvas.getContext("2d"),
     width: 576,
-    height: 192,
+    height: 140,
     image: LumberJackIdleAnimationImg,
     numberOfFrames: 3,
 	ticksPerFrame: 15,
 });
 
+const VergilIdleAnimationImg = new Image();
+VergilIdleAnimationImg.src = "Images/VergilIdleAnimation.png";
+
+const VergilIdleAnimation = sprite({
+    context: canvas.getContext("2d"),
+    width: 576,
+    height: 192,
+    image: VergilIdleAnimationImg,
+    numberOfFrames: 3,
+	ticksPerFrame: 35,
+});
+
+
 
 // Initialize, spelaren och andra klasser.
 const enemy1 = new enemy("Mcucc", "red", 30, 60, canvas.width - 60, 30, 0, 100, 0);
 const bowlingBall = new projectile('Sploading Bowling Ball', 'black', 30, 30, 20, 0, 0, 0, 0);
-const player1 = new player("Lumbar", "transparent", LumberJackIdleAnimationImg.src, 156, 140, 60, 30, 0, 0, 100, 0, false);
+const player1 = new player("Vergil", "red", VergilIdleAnimationImg.src, 130, 167, 60, 30, 0, 0, 100, 0);
 
 
 function drawPlayerModelLoop(playerModel) {
@@ -139,12 +148,14 @@ function drawPlayerModelLoop(playerModel) {
 // Define keys and an array to keep key states
 // Global key log;
 const keyState = {};
-const KEY_UP = 'ArrowUp';
-const KEY_DOWN = 'ArrowDown';
-const KEY_LEFT = 'ArrowLeft';
-const KEY_RIGHT = 'ArrowRight';
+const KEY_UP = 'KeyW';
+const KEY_DOWN = 'KeyS';
+const KEY_LEFT = 'KeyA';
+const KEY_RIGHT = 'KeyD';
 const KEY_SPACE = 'Space';
 const KEY_ENTER = 'Enter';
+const LIGHT_ATTACK = 'KeyJ';
+const HEAVY_ATTACK = 'KeyK';
 
 
 //Logging function, för keys.
@@ -175,10 +186,9 @@ function executeMoves(object) {
     }
 }
 
-
 // Tids variabler för Timer.
 let startTime;
-const startingSeconds = 5;
+const startingSeconds = 100;
 let time = startingSeconds;
 
 function startCountdown() {
@@ -280,20 +290,15 @@ function reload() {
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
-    // Beräkna hur lång tid som har gått sedan starten
     const elapsedTime = Date.now() - startTime;
-
-    // Beräkna antalet sekunder som är kvar
     const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
-
-    // Uppdatera nedräkningen
     clock.innerHTML = `${secondsLeft}`;
 
     if (isAlive(player1) && secondsLeft > 0) {
         executeMoves(player1);
         clearCanvas();
         drawPlayers(player1);
-        drawPlayerModelLoop(LumberJackIdleAnimation);
+        drawPlayerModelLoop(VergilIdleAnimation);
         animateGravity(player1);
         collisionControl(player1);
         requestAnimationFrame(mainLoop);

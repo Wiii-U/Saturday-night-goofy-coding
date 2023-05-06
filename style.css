@@ -10,7 +10,14 @@ body {
    width: 100vw;
    font-family: 'Cormorant Garamond', serif;
    font-family: 'Josefin Sans', sans-serif;
-   background-image: url('Images/Background2.jpg');
+   background-image: url('Images/Background6.jpg');
+   background-repeat: 0;
+   background-size: cover;
+}
+
+main {
+  height: 100vh;
+  width: 100vw;
 }
 
 .gameOptions {
@@ -32,7 +39,7 @@ body {
     border-radius: 2px;
     border-style: double;
     border-bottom-color:red;
-    border-left: rgb(0, 0, 0);
+    border-left-color: rgb(0, 0, 0);
     border-top-color: red;
     border-right-color: rgb(0, 0, 0);
     margin-left: auto;
@@ -53,7 +60,7 @@ body {
     height: 700px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 20px;
+    margin-top: 40px;
     margin-bottom: auto;
 }
 
