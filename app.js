@@ -11,13 +11,18 @@ canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
 const ground = canvas.height;
 const bounce = 0;
-const gravity = {x: 0, y: 0.1};
+const gravity = {x: 0, y: 0.07};
 penn.fillStyle = "white";
 penn.fillRect(0, 0, canvas.width, canvas.height);
 
 
+// Intervall av.
+const speedX = 3; // Horizontal speed.
+const speedY = 5; // Vertical speed.
+
+
 class player{
-    constructor(name, color, image, width, height, posX, posY, yvelocity, xvelocity, health, kills, deaths,shield) {
+    constructor(name, color, image, width, height, posX, posY, yvelocity, xvelocity, health, kills, deaths, shield) {
         this.name = name;
         this.color = color;
         this.image = image;
@@ -36,32 +41,55 @@ class player{
 
 
 class enemy{
-    constructor(name, color, width, height, posX, posY, yvelocity, xvelocity, health, shield) {
-        this.name = name;
-        this.color = color;
-        this.width = width;
-        this.height = height;
-        this.posX = posX;
-        this.posY = posY;
-        this.yvelocity = yvelocity;
-        this.xvelocity = xvelocity;
-        this.health = health;
-        this.shield = shield;
+    constructor() {
+        this.position = {
+            x:canvas.width - 300,
+            y:0
+        }
+
+        this.velocity = {
+            x:0,
+            y:0
+        }
+
+        const image = new Image()
+        image.src = 'Images/EnemyRobot.png'
+        image.onload = () => {
+            const scale = 0.2
+            this.image = image
+            this.width = image.width * scale
+            this.height = image.height * scale
+        }
+        
+    }
+
+    draw() {
+        if(this.image)
+            penn.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
     }
 }
 
 
 class projectile{
-    constructor(name, color, width, height, radius, posX, posY, yvelocity, xvelocity) {
-        this.name = name;
-        this.color = color;
-        this.width = width;
-        this.height = height;
-        this.radius = radius;
-        this.posX = posX;
-        this.posY = posY;
-        this.yvelocity = yvelocity;
-        this.xvelocity = xvelocity;
+    constructor({position, velocity}) {
+        this.position = position
+        this.velocity = velocity
+
+        this.radius = 3
+    }
+
+    draw() {
+        penn.beginPath()
+        penn.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+        penn.fillStyle = 'red'
+        penn.fill()
+        penn.closePath()
+    }
+
+    update() {
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
     }
 }
 
@@ -104,11 +132,12 @@ function mcSprite (options) {
         penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
         
         // Rita animationen
-        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, player1.posX, player1.posY, that.width / numberOfFrames, that.height);
+        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, Player.posX, Player.posY, that.width / numberOfFrames, that.height);
     };
     
     return that;
 }
+
 
 function enemySprite (options) {
 
@@ -148,10 +177,16 @@ function enemySprite (options) {
         penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
         
         // Rita animationen
-        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, player1.posX, player1.posY, that.width / numberOfFrames, that.height);
+        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, Player.posX, Player.posY, that.width / numberOfFrames, that.height);
     };
     
     return that;
+}
+
+
+function randomXToY(minVal, maxVal) {
+  var randVal = minVal+(Math.random()*(maxVal-minVal));
+  return Math.round(randVal);
 }
 
 
@@ -177,14 +212,8 @@ const VergilIdleAnimation = mcSprite({
     height: 192,
     image: VergilIdleAnimationImg,
     numberOfFrames: 3,
-	ticksPerFrame: 14,
+	ticksPerFrame: 30,
 });
-
-
-// Initialize, spelaren och andra klasser.
-const enemy1 = new enemy("Mcucc", "red", 30, 60, canvas.width, 0, 0, 100, 0);
-const bowlingBall = new projectile('Sploading Bowling Ball', 'black', 30, 30, 20, 0, 0, 0, 0);
-const player1 = new player("Vergil", "red", VergilIdleAnimationImg.src, 130, 167, 60, 0, 0, 0, 100, 0);
 
 
 function drawPlayerModelLoop(playerModel) {
@@ -192,13 +221,23 @@ function drawPlayerModelLoop(playerModel) {
     playerModel.render();
 }
 
-// Define keys and an array to keep key states
-// Global key log;
+
+// Initialize, spelaren och andra klasser.
+const Enemy = new enemy()
+const Player = new player("Vergil", "transparent", VergilIdleAnimationImg.src, 100, 167, 60, 0, 0, 0, 100, 0, 0, 0);
+const projectiles = [];
+
+
+// --- Define keys and an array to keep key states --- Global key log ---//
 const keyState = {};
-const KEY_UP = 'KeyW';
-const KEY_DOWN = 'KeyS';
-const KEY_LEFT = 'KeyA';
-const KEY_RIGHT = 'KeyD';
+const KEY_UP = 'ArrowUp';
+const KEY_DOWN = 'ArrowDown';
+const KEY_LEFT = 'ArrowLeft';
+const KEY_RIGHT = 'ArrowRight';
+const KEY_W = 'KeyW';
+const KEY_A = 'KeyA';
+const KEY_D = 'KeyD';
+const KEY_S = 'KeyS';
 const KEY_SPACE = 'Space';
 const KEY_ENTER = 'Enter';
 const LIGHT_ATTACK = 'KeyJ';
@@ -213,22 +252,18 @@ document.addEventListener('keydown', keyEventLogger);
 document.addEventListener('keyup', keyEventLogger);
 
 
-// Intervall av.
-const speedX = 5; // Horizontal speed.
-const speedY = 7; // Vertical speed.
-
 // Utför rörelserna på karatärerna
-function executeMoves(object) {
-    if (keyState[KEY_UP]) {       
+function executePlayerMoves(object) {
+    if (keyState[KEY_W]) {       
         object.posY -= speedY;
     } 
-    if (keyState[KEY_DOWN]) {        
+    if (keyState[KEY_S]) {        
         object.posY += speedY;
     }
-    if (keyState[KEY_LEFT]) {        
+    if (keyState[KEY_A]) {        
         object.posX -= speedX;
     }
-    if (keyState[KEY_RIGHT]) {      
+    if (keyState[KEY_D]) {      
         object.posX += speedX;
     }
     if (keyState[LIGHT_ATTACK]) {
@@ -239,11 +274,32 @@ function executeMoves(object) {
     }
 }
 
-// Tids variabler för Timer.
+function executeEnemyMoves(enemy) {
+    if (keyState[KEY_UP]) {       
+        enemy.position.y -= speedY;
+    } 
+    if (keyState[KEY_DOWN]) {        
+        enemy.position.y += speedY;
+    }
+    if (keyState[KEY_LEFT]) {        
+        enemy.position.x -= speedX;
+    }
+    if (keyState[KEY_RIGHT]) {      
+        enemy.position.x += speedX;
+    }
+    if (keyState[LIGHT_ATTACK]) {
+
+    }
+    if (keyState[HEAVY_ATTACK]) {
+
+    }
+}
+
+
+// Tids variabler för Timern.
 let startTime;
 const startingSeconds = 100;
 let time = startingSeconds;
-
 function startCountdown() {
     // Spara starttiden
     startTime = Date.now();
@@ -253,66 +309,14 @@ function startCountdown() {
 }
 
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
 function drawPlayers(object) {
     penn.fillStyle = object.color;
     penn.fillRect(object.posX, object.posY, object.width, object.height);
-}
-
-
-function randomXToY(minVal, maxVal) {
-  var randVal = minVal+(Math.random()*(maxVal-minVal));
-  return Math.round(randVal);
-}
-
-
-function drawMobs(enemies) {
-    while (enemies.length <= 10) {
-        var enemy_model = new enemy(enemy1.name, enemy1.color, enemy1.width, enemy1.height, enemy1.posX, enemy1.posY, enemy1.yvelocity, enemy1.xvelocity, enemy1.health, enemy1.shield);
-        enemies.push(enemy_model);
-        penn.fillStyle = enemy_model.color;
-        enemy_model.posY = randomXToY(0, canvas.height);
-        penn.fillRect(enemy_model.posX, enemy_model.posY, enemy_model.width, enemy_model.height);
-    }
-}
-
-
-function updateMobPos(enemies) {
-    enemies.forEach(element => {
-        element.posX -= speedX;
-    });
-}
-
-
-const drawImage = (object) => {
-    const image = new Image();
-    image.src = object.image.src;
-    image.onload = () => {
-        penn.drawImage(image, object.posX, object.posY, 200, 200);
-    }
-}
-
-
-function drawLives() {
-    penn.font = "18px Arial";
-    penn.fillStyle = "black";
-    penn.fillText('HP: '+ player1.health, 0,ceiling)
-}
-
-
-function drawScore() {
-    penn.font = "18px Arial";
-    penn.fillStyle = "black";
-    penn.fillText('Enemys killed: '+ player1.kills, 0, 18);
-}
-
-
-function isAlive(object) {
-    if (object.health <= 0) {
-        return false
-    }
-    else {
-        return true
-    }
 }
 
 
@@ -329,13 +333,22 @@ function animateGravity(object) {
 }
 
 
-function drawProjectile(object) {
-    penn.fillStyle = object.color;
-    penn.beginPath();
-    penn.arc(object.posX + object.width, object.posY + (object.height/2), object.radius, 0, 2 * Math.PI);
-    penn.closePath();
-    penn.fill();
-}
+const addProjectile = async () => {
+    while (projectiles.length < 100) {
+        projectiles.push(new projectile({
+        position: {
+            x: randomXToY(canvas.width, canvas.width * 2),
+            y: randomXToY(0, canvas.height)
+        },
+        velocity: {
+            x: -3,
+            y: 0
+        },
+        }));
+    
+        await new Promise(resolve => setTimeout(resolve, 100)); // 500millisekund delay, mellan varje push
+    }
+};
 
 
 function collisionControl(object) {
@@ -389,6 +402,30 @@ function clearCanvas() {
 }
 
 
+function drawLives() {
+    penn.font = "18px Arial";
+    penn.fillStyle = "black";
+    penn.fillText('HP: '+ Player.health, 0,ceiling)
+}
+
+
+function drawScore() {
+    penn.font = "18px Arial";
+    penn.fillStyle = "black";
+    penn.fillText('Enemys killed: '+ Player.kills, 0, 18);
+}
+
+
+function isAlive(object) {
+    if (object.health <= 0) {
+        return false
+    }
+    else {
+        return true
+    }
+}
+
+
 function isPaused() {
     if (pauseBtn.clicked == true) {
         return true;
@@ -412,24 +449,34 @@ function mainLoop() {
     const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
     clock.innerHTML = `${secondsLeft}`;
 
-    if (isAlive(player1) && secondsLeft > 0) {
-        executeMoves(player1);
+    if (isAlive(Player) && secondsLeft > 0) {
+        executePlayerMoves(Player);
+        executeEnemyMoves(Enemy);
         clearCanvas();
 
         // --- Ritar Ui:et --- //
         penn.font = "18px Arial";
         penn.fillStyle = "black";
-        penn.fillText("HEALTH: "+player1.health,0,18);
-        penn.fillText("SCORE: "+player1.kills,0,36);
+        penn.fillText("HEALTH: "+Player.health,0,18);
+        penn.fillText("SCORE: "+Player.kills,0,36);
         
 
-        drawPlayers(player1);
+        drawPlayers(Player);
         drawPlayerModelLoop(VergilIdleAnimation);
-        drawMobs(enemies);
-        updateMobPos(enemies);
-        animateGravity(player1);
-        collisionControl(player1);
-        enemyCollisionControl(enemies);
+        addProjectile();  
+        projectiles.forEach((projectile, index) => {
+            if (projectile.position.x + projectile.radius <= 0) {
+                setTimeout(() => {
+                    projectiles.splice(index, 1)
+                }, 0)
+            } else {
+                projectile.update()
+            }
+        });
+        Enemy.draw()
+        animateGravity(Player);
+        collisionControl(Player);
+        // enemyCollisionControl(Enemy);
         requestAnimationFrame(mainLoop);
     }
     if (secondsLeft <= 0) {
@@ -446,17 +493,20 @@ function mainLoop() {
     }
 }
 
+
 gameStartBtn.onclick = function (e) {
     e.preventDefault()
 
     gameStartBtn.style.display = 'none';
 }
 
+
 gameMenuBtn.onclick = function (e) {
     e.preventDefault()
 
     gameMenu.style.height = '100%';
 }
+
 
 // gameStartBtn är knappen som kör huvudfunktionen mainloop(), om den klickas.
 gameStartBtn.addEventListener("click", startCountdown);
