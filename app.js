@@ -110,7 +110,6 @@ function mcSprite (options) {
     return that;
 }
 
-
 function enemySprite (options) {
 
     let that = {},
@@ -178,7 +177,7 @@ const VergilIdleAnimation = mcSprite({
     height: 192,
     image: VergilIdleAnimationImg,
     numberOfFrames: 3,
-	ticksPerFrame: 10,
+	ticksPerFrame: 14,
 });
 
 
@@ -266,15 +265,21 @@ function randomXToY(minVal, maxVal) {
 }
 
 
-function drawMobs(mob) {
-    penn.fillStyle = mob.color;
-    mob.posY = randomXToY(0, canvas.height);
-    penn.fillRect(mob.posX, mob.posY, mob.width, mob.height);
+function drawMobs(enemies) {
+    while (enemies.length <= 10) {
+        var enemy_model = new enemy(enemy1.name, enemy1.color, enemy1.width, enemy1.height, enemy1.posX, enemy1.posY, enemy1.yvelocity, enemy1.xvelocity, enemy1.health, enemy1.shield);
+        enemies.push(enemy_model);
+        penn.fillStyle = enemy_model.color;
+        enemy_model.posY = randomXToY(0, canvas.height);
+        penn.fillRect(enemy_model.posX, enemy_model.posY, enemy_model.width, enemy_model.height);
+    }
 }
 
 
-function updateMobPos(object) {
-    object.posX += speedX;
+function updateMobPos(enemies) {
+    enemies.forEach(element => {
+        element.posX -= speedX;
+    });
 }
 
 
@@ -356,6 +361,28 @@ function collisionControl(object) {
 }
 
 
+function enemyCollisionControl(enemyArr) {
+    enemyArr.forEach(element => {
+        const isCollidingWithRightSide = (element.posX + element.width >= canvas.width);
+        const isPastLeftSide = (element.posX + element.width <= 0);
+        const isCollidingWithFloor = (element.posY + element.height >= canvas.height);
+        const isCollidingWithRoof = (element.posY <= 0);
+        if (isCollidingWithFloor) {
+            element.posY = canvas.height - element.height;
+        }
+        if (isPastLeftSide) {
+           enemies.pop(element);
+        }
+        if (isCollidingWithRoof) {
+            element.posY = 0 + element.height;
+        }
+        if (isCollidingWithRightSide) {
+            element.posX = canvas.width - element.width;
+        }
+    });
+}
+
+
 function clearCanvas() {
     penn.fillStyle = "rgba(255, 255, 255, 0.5)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
@@ -377,48 +404,46 @@ function reload() {
 }
 
 
+let enemies = [];
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
-    // isPaused();
-    // while (!isPaused) {
-        const elapsedTime = Date.now() - startTime;
-        const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
-        clock.innerHTML = `${secondsLeft}`;
+    const elapsedTime = Date.now() - startTime;
+    const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
+    clock.innerHTML = `${secondsLeft}`;
 
-        if (isAlive(player1) && secondsLeft > 0) {
-            executeMoves(player1);
-            clearCanvas();
+    if (isAlive(player1) && secondsLeft > 0) {
+        executeMoves(player1);
+        clearCanvas();
 
-            //UI
-            penn.font = "18px Arial";
-            penn.fillStyle = "black";
-            penn.fillText("HEALTH: "+player1.health,0,18);
-            penn.fillText("Enemys killed: "+player1.kills,0,36);
-            
+        // --- Ritar Ui:et --- //
+        penn.font = "18px Arial";
+        penn.fillStyle = "black";
+        penn.fillText("HEALTH: "+player1.health,0,18);
+        penn.fillText("SCORE: "+player1.kills,0,36);
+        
 
-            drawPlayers(player1);
-            drawPlayerModelLoop(VergilIdleAnimation);
-            drawMobs(enemy1);
-            updateMobPos(enemy1);
-            animateGravity(player1);
-            collisionControl(player1);
-            collisionControl(enemy1);
-            requestAnimationFrame(mainLoop);
-        }
-        if (secondsLeft <= 0) {
-            // Stoppa huvudloopen när nedräkningen når 0
-            clearCanvas();
-            penn.font = "40px Cormorant Garamond, serif";
-            penn.fillStyle = 'black';
-            penn.fillText('Press ENTER for Main Menu.', 10, ground);
-            document.addEventListener('keypress', function (event) {
-                if (event.key == KEY_ENTER) {
-                    reload();
-                }
-            })
-        }
-    // }
+        drawPlayers(player1);
+        drawPlayerModelLoop(VergilIdleAnimation);
+        drawMobs(enemies);
+        updateMobPos(enemies);
+        animateGravity(player1);
+        collisionControl(player1);
+        enemyCollisionControl(enemies);
+        requestAnimationFrame(mainLoop);
+    }
+    if (secondsLeft <= 0) {
+        // --- Stoppa huvudloopen när nedräkningen når 0 --- //
+        clearCanvas();
+        penn.font = "40px Cormorant Garamond, serif";
+        penn.fillStyle = 'black';
+        penn.fillText('Press ENTER for Main Menu.', 10, ground);
+        document.addEventListener('keypress', function (event) {
+            if (event.key == KEY_ENTER) {
+                reload();
+            }
+        })
+    }
 }
 
 gameStartBtn.onclick = function (e) {
