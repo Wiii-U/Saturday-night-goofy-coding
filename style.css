@@ -11,9 +11,12 @@ body {
    font-family: 'Cormorant Garamond', serif;
    font-family: 'Josefin Sans', sans-serif;
    background-image: url('Images/Background6.jpg');
-   background-repeat: 0;
    background-size: cover;
 }
+
+/* #music {
+  display: none;
+} */
 
 main {
   height: 100vh;

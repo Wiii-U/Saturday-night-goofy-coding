@@ -74,8 +74,7 @@ class projectile{
     constructor({position, velocity}) {
         this.position = position
         this.velocity = velocity
-
-        this.radius = 5
+        this.radius = 10
     }
 
     draw() {
@@ -90,6 +89,24 @@ class projectile{
         this.draw()
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
+    }
+}
+
+
+class judgementCut{
+    constructor({position}) {
+        this.position = position
+        this.width = 130
+        this.height = 100
+    }
+
+    draw() {
+        penn.fillStyle = 'red'
+        penn.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+
+    update() {
+        this.draw()
     }
 }
 
@@ -199,7 +216,7 @@ const VergilIdleAnimationLeft = enemySprite({
     height: 192,
     image: VergilIdleAnimationLeftImg,
     numberOfFrames: 3,
-	ticksPerFrame: 30,
+	ticksPerFrame: 15,
 });
 
 
@@ -252,43 +269,152 @@ document.addEventListener('keydown', keyEventLogger);
 document.addEventListener('keyup', keyEventLogger);
 
 
-// Utför rörelserna på karatärerna
-function executePlayerMoves(object) {
-    var isAttacking = false;
-    if (keyState[KEY_W]) {       
-        object.posY -= speedY;
-    } 
-    if (keyState[KEY_S]) {        
-        object.posY += speedY;
-    }
-    if (keyState[KEY_A]) {        
-        object.posX -= speedX;
-    }
-    if (keyState[KEY_D]) {      
-        object.posX += speedX;
-    }
-    if (keyState[LIGHT_ATTACK]) {
-        isAttacking = true;
-        setTimeout(function(){
-            projectileArray.push(new projectile({
-            position: {
-                x: object.posX + object.width,
-                y: object.posY + (object.height/2)
-            },
-            velocity: {
-                x: 3,
-                y: 0
-            },
-            }));
-        }, 500)
-        
-        console.log(projectileArray)
-    }
-    if (keyState[HEAVY_ATTACK]) {
-        isAttacking = true;
+const keys = {
+    a: {
+        pressed:false
+    },
+    d: {
+        pressed:false
+    },
+    w: {
+        pressed:false
+    },
+    s: {
+        pressed:false
+    },
+    space: {
+        pressed:false
+    },
+    enter: {
+        pressed:false
+    },
+    j: {
+        pressed:false
+    },
+    k: {
+        pressed:false
+    },
+    jumping: {
+        pressed:false
     }
 }
 
+addEventListener('keydown', ({ key }) => {
+    switch (key) {
+        case 'a':
+            console.log('left')
+            keys.a.pressed = true
+            break;
+        case 'd':
+            console.log('right')
+            keys.d.pressed = true
+            break;
+        case 'w':
+            console.log('up')
+            keys.w.pressed = true
+            break;
+        case 's':
+            console.log('down')
+            keys.s.pressed = true
+            break;
+        case 'j':
+            console.log('light_attack')            
+            const initialProjectilePosition = {
+                x: Player.posX + Player.width + 2,
+                y: Player.posY + (Player.height / 2)
+            };
+            const projectileVelocity = {
+                x: 3 + speedX,
+                y: 0
+            };
+            projectileArray.push(new projectile({
+                position: initialProjectilePosition,
+                velocity: projectileVelocity
+            }));
+            keys.j.pressed = true
+            break;
+        case 'k':
+            console.log('heavy_attack')
+            keys.k.pressed = true
+            break;
+        case ' ':
+            console.log('space')
+            keys.space.pressed = true
+            break;
+    }
+})
+
+addEventListener('keyup', ({ key }) => {
+    switch (key) {
+        case 'a':
+            console.log('left')
+            keys.a.pressed = false
+            break;
+        case 'd':
+            console.log('right')
+            keys.d.pressed = false
+            break;
+        case 'w':
+            console.log('up')
+            keys.w.pressed = false
+            break;
+        case 's':
+            console.log('down')
+            keys.s.pressed = false
+            break;
+        case 'j':
+            console.log('light_attack')
+            keys.j.pressed = false
+            break;
+        case 'k':
+            console.log('heavy_attack')
+            keys.k.pressed = false
+            break;
+        case ' ':
+            console.log('space')
+            keys.space.pressed = false
+            break;
+    }
+})
+
+// Utför rörelserna på karatärerna
+function executePlayerMoves(object) {
+    if (keys.s.pressed && object.posY + object.height <= canvas.height) {
+        object.posY += speedY
+    }
+    else if (keys.w.pressed && object.posY >= 0) {
+        object.posY -= speedY
+    }
+    if (keys.a.pressed && object.posX >=0) {
+        object.posX -= speedX
+    }
+    else if (keys.d.pressed && object.posX + object.width <= canvas.width) {
+        object.posX += speedX
+    }
+    else {
+        object.posX += 0
+        object.posY += 0
+    }
+}
+
+function executeEnemyMoves(object) {
+    if (keys.s.pressed && object.posY + object.height <= canvas.height) {
+        object.posY += speedY
+    }
+    else if (keys.w.pressed && object.posY >= 0) {
+        object.posY -= speedY
+    }
+    if (keys.a.pressed && object.posX >=0) {
+        object.posX -= speedX
+    }
+    else if (keys.d.pressed && object.posX + object.width <= canvas.width) {
+        object.posX += speedX
+    }
+    else {
+        object.posX += 0
+        object.posY += 0
+    }
+}
 
 // Tids variabler för Timern.
 let startTime;
@@ -390,7 +516,6 @@ function reset() {
 }
 
 
-let enemies = [];
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
