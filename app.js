@@ -96,17 +96,23 @@ class projectile{
 class judgementCut{
     constructor({position}) {
         this.position = position
-        this.width = 130
-        this.height = 100
+
+
+        const image = new Image()
+        image.src = 'Images/slash.png'
+        image.onload = () => {
+            const scale = 0.25
+            this.image = image
+            this.width = image.width
+            this.height = image.height
+        }  
     }
+    
 
     draw() {
-        penn.fillStyle = 'red'
-        penn.fillRect(this.position.x, this.position.y, this.width, this.height)
-    }
-
-    update() {
-        this.draw()
+        if(this.image) {
+            penn.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+        }
     }
 }
 
@@ -243,6 +249,7 @@ function drawPlayerModelLoop(playerModel) {
 const Enemy = new enemy()
 const Player = new player("Vergil", "red", VergilIdleAnimationImg.src, 100, 167, 60, 0, 0, 0, 100, 0, 0, 0);
 const projectileArray = [];
+const enemyArray = [];
 
 
 // --- Define keys and an array to keep key states --- Global key log ---//
@@ -335,6 +342,14 @@ addEventListener('keydown', ({ key }) => {
             break;
         case 'k':
             console.log('heavy_attack')
+            const judgementCutRange = 300;
+            const regularJudgementCut = new judgementCut({
+                position: {
+                    x: (Player.posX + Player.width) + judgementCutRange,
+                    y: canvas.height - 300
+                }
+            });
+            regularJudgementCut.draw();
             keys.k.pressed = true
             break;
         case ' ':
@@ -397,24 +412,6 @@ function executePlayerMoves(object) {
     }
 }
 
-function executeEnemyMoves(object) {
-    if (keys.s.pressed && object.posY + object.height <= canvas.height) {
-        object.posY += speedY
-    }
-    else if (keys.w.pressed && object.posY >= 0) {
-        object.posY -= speedY
-    }
-    if (keys.a.pressed && object.posX >=0) {
-        object.posX -= speedX
-    }
-    else if (keys.d.pressed && object.posX + object.width <= canvas.width) {
-        object.posX += speedX
-    }
-    else {
-        object.posX += 0
-        object.posY += 0
-    }
-}
 
 // Tids variabler för Timern.
 let startTime;
