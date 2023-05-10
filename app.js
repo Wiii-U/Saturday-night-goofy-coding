@@ -146,7 +146,7 @@ class judgementCut{
 }
 
 
-function mcSprite (options) {
+function IdleVergilSpritePC (options) {
 
     let that = {},
         frameIndex = 0,
@@ -191,7 +191,7 @@ function mcSprite (options) {
 }
 
 
-function enemySprite (options) {
+function IdleVergilSpritePC (options) {
 
     let that = {},
         frameIndex = 0,
@@ -225,11 +225,56 @@ function enemySprite (options) {
     that.render = function () {
     
         // Tömma canvasen
-        penn.fillStyle = "white";
+        penn.fillStyle = "transparent";
         penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
         
         // Rita animationen
-        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, Enemy.position.x, Enemy.position.y, that.width / numberOfFrames, that.height);
+        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, Player.posX, Player.posY, that.width / numberOfFrames, that.height);
+    };
+    
+    return that;
+}
+
+
+function IdleVergilSpriteEnemy (options) {
+
+    let that = {},
+        frameIndex = 0,
+        tickCount = 0,
+        ticksPerFrame = options.ticksPerFrame || 0,
+        numberOfFrames = options.numberOfFrames || 1;
+    
+    that.context = options.context;
+    that.width = options.width;
+    that.height = options.height;
+    that.image = options.image;
+    
+    that.update = function () {
+
+        tickCount += 1;
+
+        if (tickCount > ticksPerFrame) {
+
+            tickCount = 0;
+            
+            // Om det nuvarande indexet är i intervallet.
+            if (frameIndex < numberOfFrames - 1) {	
+                // Gå till nästa frame
+                frameIndex += 1;
+            } else {
+                frameIndex = 0;
+            }
+        }
+    };
+    
+    that.render = function () {
+    
+        // Tömma canvasen
+        penn.fillStyle = "transparent";
+        penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
+        
+        // Rita animationen
+        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+39, 10, that.width / numberOfFrames, that.height, Enemy.posX, Enemy.posY, that.width / numberOfFrames, that.height);
     };
     
     return that;
@@ -245,7 +290,7 @@ function randomXToY(minVal, maxVal) {
 const VergilIdleAnimationLeftImg = new Image();
 VergilIdleAnimationLeftImg.src = "Images/VergilIdleAnimationLeft.png";
 
-const VergilIdleAnimationLeft = enemySprite({
+const VergilIdleAnimationLeft = IdleVergilSpriteEnemy({
     context: canvas.getContext("2d"),
     width: 576,
     height: 192,
@@ -258,7 +303,7 @@ const VergilIdleAnimationLeft = enemySprite({
 const VergilIdleAnimationImg = new Image();
 VergilIdleAnimationImg.src = "Images/VergilIdleAnimation.png";
 
-const VergilIdleAnimation = mcSprite({
+const VergilIdleAnimation = IdleVergilSpritePC({
     context: canvas.getContext("2d"),
     width: 576,
     height: 192,
@@ -275,70 +320,45 @@ function drawPlayerModelLoop(playerModel) {
 
 
 // Initialize, spelaren och andra klasser.
-const Enemy = new enemy()
-const Player = new player("Vergil", "red", VergilIdleAnimationImg.src, 100, 167, 60, 0, 0, 0, 100, 0, 0, 0);
+const Player = new player("Vergil", "red", VergilIdleAnimationImg.src, 120, 167, 60, 0, 0, 0, 100, 0, 0, 0);
+const Enemy = new player("Vergil", "red", VergilIdleAnimationLeftImg.src, 120, 167, canvas.width - (Player.posX+ Player.width), 0, 0, 0, 100, 0, 0, 0);
 const projectileArray = [];
 const enemyArray = [];
 
 
-// --- Define keys and an array to keep key states --- Global key log ---//
-const keyState = {};
-const KEY_UP = 'ArrowUp';
-const KEY_DOWN = 'ArrowDown';
-const KEY_LEFT = 'ArrowLeft';
-const KEY_RIGHT = 'ArrowRight';
-const KEY_W = 'KeyW';
-const KEY_A = 'KeyA';
-const KEY_D = 'KeyD';
-const KEY_S = 'KeyS';
-const KEY_SPACE = 'Space';
-const KEY_ENTER = 'Enter';
-const LIGHT_ATTACK = 'KeyJ';
-const HEAVY_ATTACK = 'KeyK';
-
-
-//Logging function, för keys.
-const keyEventLogger =  function (e) { 
-    keyState[e.code] = e.type == 'keydown'; 
-}
-document.addEventListener('keydown', keyEventLogger);
-document.addEventListener('keyup', keyEventLogger);
-
-
 const keys = {
-    a: {
-        pressed:false
-    },
-    d: {
-        pressed:false
-    },
-    w: {
-        pressed:false
-    },
-    s: {
-        pressed:false
-    },
-    space: {
-        pressed:false
-    },
-    enter: {
-        pressed:false
-    },
-    j: {
-        pressed:false
-    },
-    k: {
-        pressed:false
-    },
-    jumping: {
-        pressed:false
-    }
+    a: { pressed:false},
+    ArrowUp: { pressed:false},
+    ArrowDown: { pressed:false},
+    ArrowLeft: {pressed:false},
+    ArrowRight: {pressed:false},
+    d: {pressed:false},
+    w: {pressed:false},
+    s: {pressed:false},
+    space: {pressed:false},
+    enter: {pressed:false},
+    j: {pressed:false},
+    k: {pressed:false},
+    jumping: {pressed:false}
 }
+
 
 addEventListener('keydown', ({ key }) => {
     switch (key) {
         case 'a':
             keys.a.pressed = true
+            break;
+        case 'ArrowUp':
+            keys.ArrowUp.pressed = true
+            break;
+        case 'ArrowDown':
+            keys.ArrowDown.pressed = true
+            break;
+        case 'ArrowRight':
+            keys.ArrowRight.pressed = true
+            break;
+        case 'ArrowLeft':
+            keys.ArrowLeft.pressed = true
             break;
         case 'd':
             keys.d.pressed = true
@@ -348,6 +368,12 @@ addEventListener('keydown', ({ key }) => {
             break;
         case 's':
             keys.s.pressed = true
+            break;
+        case ' ':
+            keys.space.pressed = true
+            break;
+        case 'Enter':
+            keys.enter.pressed = true
             break;
         case 'j':
             console.log('light_attack')            
@@ -379,12 +405,9 @@ addEventListener('keydown', ({ key }) => {
             console.log(regularJudgementCut);
             keys.k.pressed = true
             break;
-        case ' ':
-            console.log('space')
-            keys.space.pressed = true
-            break;
     }
 })
+
 
 addEventListener('keyup', ({ key }) => {
     switch (key) {
@@ -406,29 +429,67 @@ addEventListener('keyup', ({ key }) => {
         case 'k':
             keys.k.pressed = false
             break;
+        case 'ArrowUp':
+            keys.ArrowUp.pressed = false
+            break;
+        case 'ArrowDown':
+            keys.ArrowDown.pressed = false
+            break;
+        case 'ArrowRight':
+            keys.ArrowRight.pressed = false
+            break;
+        case 'ArrowLeft':
+            keys.ArrowLeft.pressed = false
+            break;
         case ' ':
             keys.space.pressed = false
+            break;
+        case 'Enter':
+            keys.enter.pressed = false
             break;
     }
 })
 
+
 // Utför rörelserna på karatärerna
 function executePlayerMoves(object) {
-    if (keys.s.pressed && object.posY + object.height <= canvas.height) {
-        object.posY += speedY
-    }
-    else if (keys.w.pressed && object.posY >= 0) {
-        object.posY -= speedY
-    }
-    if (keys.a.pressed && object.posX >=0) {
-        object.posX -= speedX
-    }
-    else if (keys.d.pressed && object.posX + object.width <= canvas.width) {
-        object.posX += speedX
+    if(object == Player){
+        if (keys.s.pressed && object.posY + object.height <= canvas.height) {
+            object.posY += speedY
+        }
+        else if (keys.w.pressed && object.posY >= 0) {
+            object.posY -= speedY
+            keys.jumping.pressed = true
+        }
+        if (keys.a.pressed && object.posX >=0) {
+            object.posX -= speedX
+        }
+        else if (keys.d.pressed && object.posX + object.width <= canvas.width) {
+            object.posX += speedX
+        }
+        else {
+            object.posX += 0
+            object.posY += 0
+        }
     }
     else {
-        object.posX += 0
-        object.posY += 0
+        if (keys.ArrowDown.pressed && object.posY + object.height <= canvas.height) {
+            object.posY += speedY
+        }
+        else if (keys.ArrowUp.pressed && object.posY >= 0) {
+            object.posY -= speedY
+            keys.jumping.pressed = true
+        }
+        if (keys.ArrowLeft.pressed && object.posX >=0) {
+            object.posX -= speedX
+        }
+        else if (keys.ArrowRight.pressed && object.posX + object.width <= canvas.width) {
+            object.posX += speedX
+        }
+        else {
+            object.posX += 0
+            object.posY += 0
+        }
     }
 }
 
@@ -546,11 +607,16 @@ function mainLoop() {
 
     if (isAlive(Player) && secondsLeft > 0) {
         executePlayerMoves(Player);
+        executePlayerMoves(Enemy);
         clearCanvas();
         drawPlayers(Player);
+        drawPlayers(Enemy);
+        drawPlayerModelLoop(VergilIdleAnimationLeft);
         drawPlayerModelLoop(VergilIdleAnimation);
         animateGravity(Player);
+        animateGravity(Enemy);
         collisionControl(Player);
+        collisionControl(Enemy);
         projectileArray.forEach((projectile, index) => {
             if (projectile.position.x + projectile.radius >= canvas.width) {
                 setTimeout(() => {
@@ -569,11 +635,9 @@ function mainLoop() {
         penn.fillStyle = 'black';
         penn.fillText('Press ENTER for Main Menu.', 10, ground);
         backgroundMusic.stop();
-        document.addEventListener('keypress', function (event) {
-            if (event.key == KEY_ENTER) {
-                reset();
-            }
-        })
+        if (keys.enter.pressed) {
+            reset();
+        }
     }
 }
 
@@ -582,7 +646,7 @@ gameStartBtn.onclick = function (e) {
     e.preventDefault()
 
     gameStartBtn.style.display = 'none';
-    backgroundMusic.play();
+    // backgroundMusic.play();
 }
 
 
