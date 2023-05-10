@@ -94,25 +94,54 @@ class projectile{
 
 
 class judgementCut{
-    constructor({position}) {
-        this.position = position
+    constructor({position, duration}) {
+        const image = new Image();
+        image.src = 'Images/Mirageslash.jpg';
 
+        if (image.complete) {
+            this.setImageDimensions(image, position);
+        } else {
+            image.onload = () => {
+                this.setImageDimensions(image, position);
+            }
+        }
 
-        const image = new Image()
-        image.src = 'Images/slash.png'
-        image.onload = () => {
-            const scale = 0.25
-            this.image = image
-            this.width = image.width
-            this.height = image.height
-        }  
+        this.duration = duration;
     }
-    
+
+    setImageDimensions(image, position) { 
+        const scale = 3;
+        this.image = image;
+        this.width = image.width * scale;
+        this.height = image.height * scale;
+        this.position = position;
+    }
 
     draw() {
-        if(this.image) {
-            penn.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+        if (this.image) {
+            penn.drawImage(
+                this.image,
+                this.position.x,
+                this.position.y - this.height,
+                this.width,
+                this.height
+            );
+
+            // Set a timeout to clear the image after the specified duration
+            setTimeout(() => {
+                this.clear();
+            }, this.duration);
         }
+    }
+
+    clear() {
+        // Clear the area where the image was drawn
+        penn.clearRect(
+            this.position.x,
+            this.position.y,
+            this.width,
+            this.height
+        );
     }
 }
 
@@ -346,10 +375,12 @@ addEventListener('keydown', ({ key }) => {
             const regularJudgementCut = new judgementCut({
                 position: {
                     x: (Player.posX + Player.width) + judgementCutRange,
-                    y: canvas.height - 300
-                }
+                    y: canvas.height
+                },
+                duration: 1000
             });
             regularJudgementCut.draw();
+            console.log(regularJudgementCut);
             keys.k.pressed = true
             break;
         case ' ':
