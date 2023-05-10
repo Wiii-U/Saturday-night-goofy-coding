@@ -338,19 +338,15 @@ const keys = {
 addEventListener('keydown', ({ key }) => {
     switch (key) {
         case 'a':
-            console.log('left')
             keys.a.pressed = true
             break;
         case 'd':
-            console.log('right')
             keys.d.pressed = true
             break;
         case 'w':
-            console.log('up')
             keys.w.pressed = true
             break;
         case 's':
-            console.log('down')
             keys.s.pressed = true
             break;
         case 'j':
@@ -393,31 +389,24 @@ addEventListener('keydown', ({ key }) => {
 addEventListener('keyup', ({ key }) => {
     switch (key) {
         case 'a':
-            console.log('left')
             keys.a.pressed = false
             break;
         case 'd':
-            console.log('right')
             keys.d.pressed = false
             break;
         case 'w':
-            console.log('up')
             keys.w.pressed = false
             break;
         case 's':
-            console.log('down')
             keys.s.pressed = false
             break;
         case 'j':
-            console.log('light_attack')
             keys.j.pressed = false
             break;
         case 'k':
-            console.log('heavy_attack')
             keys.k.pressed = false
             break;
         case ' ':
-            console.log('space')
             keys.space.pressed = false
             break;
     }
@@ -500,23 +489,27 @@ function collisionControl(object) {
 
 
 function clearCanvas() {
-    penn.fillStyle = "rgba(255, 255, 255, 0.5)";
+    penn.fillStyle = "rgba(255, 255, 255, 0.8)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 
-function drawLives() {
-    penn.font = "18px Arial";
-    penn.fillStyle = "black";
-    penn.fillText('HP: '+ Player.health, 0,ceiling)
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function () {
+        this.sound.play();
+    };
+    this.stop = function () {
+        this.sound.pause();
+    };
 }
 
-
-function drawScore() {
-    penn.font = "18px Arial";
-    penn.fillStyle = "black";
-    penn.fillText('Enemys killed: '+ Player.kills, 0, 18);
-}
+const backgroundMusic = new sound("Music/BuryTheLight.mp3");
 
 
 function isAlive(object) {
@@ -556,7 +549,6 @@ function mainLoop() {
         clearCanvas();
         drawPlayers(Player);
         drawPlayerModelLoop(VergilIdleAnimation);
-        // Enemy.draw()
         animateGravity(Player);
         collisionControl(Player);
         projectileArray.forEach((projectile, index) => {
@@ -568,7 +560,6 @@ function mainLoop() {
                 projectile.update()
             }
         });
-        // enemyCollisionControl(Enemy);
         requestAnimationFrame(mainLoop);
     }
     if (secondsLeft <= 0) {
@@ -577,6 +568,7 @@ function mainLoop() {
         penn.font = "40px Cormorant Garamond, serif";
         penn.fillStyle = 'black';
         penn.fillText('Press ENTER for Main Menu.', 10, ground);
+        backgroundMusic.stop();
         document.addEventListener('keypress', function (event) {
             if (event.key == KEY_ENTER) {
                 reset();
@@ -590,6 +582,7 @@ gameStartBtn.onclick = function (e) {
     e.preventDefault()
 
     gameStartBtn.style.display = 'none';
+    backgroundMusic.play();
 }
 
 
