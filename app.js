@@ -39,36 +39,81 @@ class player{
     }
 }
 
-
-class enemy{
-    constructor() {
-        this.position = {
-            x:0,
-            y:0
+class Sprite{
+    constructor({position, velocity, color = 'red'}) {
+        this.position = position
+        this.velocity = velocity
+        this.width = 50
+        this.height = 150
+        this.attackBox = {
+            position:this.position,
+            width: 100,
+            height: 50
         }
-
-        this.velocity = {
-            x:0,
-            y:0
-        }
-
-        const image = new Image()
-        image.src = 'Images/VergilIdleAnimationLeft.png'
-        image.onload = () => {
-            const scale = 1
-            this.image = image
-            this.width = image.width * scale
-            this.height = image.height * scale
-        }
-        
+        this.color = color
+        this.isAttacking
+        // const image = new Image()
+        // image.src = 'Images/VergilIdleAnimationLeft.png'
+        // image.onload = () => {
+        //     const scale = 1
+        //     this.image = image
+        //     this.width = image.width * scale
+        //     this.height = image.height * scale
+        // } 
     }
 
     draw() {
-        if(this.image)
-            penn.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+        penn.fillStyle = this.color
+        penn.fillRect(this.position.x, this.position.y, this.width, this.height)
+
+        // Attackbox ritas här
+        penn.fillStyle = 'green'
+        penn.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+    }
+
+    update() {
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+
+        if(this.position.y + this.height >= canvas.height) {
+            this.velocity.y = 0
+        }
+        else {
+            this.velocity.y += gravity.y
+        }
+    }
+
+    attack() {
+        this.isAttacking = true
+        setTimeout(() => {
+            this.isAttacking = false
+        }, 100);
     }
 }
 
+const Enemy2 = new Sprite({
+    position: {
+        x: 350,
+        y: 100
+    },
+    velocity: {
+        x: 0, 
+        y: 0
+    },
+    color: 'blue'
+})
+
+const Player2 = new Sprite({
+    position: {
+        x: 700,
+        y: 100,
+    },
+    velocity: {
+        x: 0, 
+        y: 0
+    },
+})
 
 class projectile{
     constructor({position, velocity}) {
@@ -323,7 +368,6 @@ function drawPlayerModelLoop(playerModel) {
 const Player = new player("Vergil", "red", VergilIdleAnimationImg.src, 120, 167, 60, 0, 0, 0, 100, 0, 0, 0);
 const Enemy = new player("Vergil", "red", VergilIdleAnimationLeftImg.src, 120, 167, canvas.width - (Player.posX+ Player.width), 0, 0, 0, 100, 0, 0, 0);
 const projectileArray = [];
-const enemyArray = [];
 
 
 const keys = {
@@ -343,13 +387,14 @@ const keys = {
 }
 
 
-addEventListener('keydown', ({ key }) => {
+window.addEventListener('keydown', ({ key }) => {
     switch (key) {
         case 'a':
             keys.a.pressed = true
             break;
         case 'ArrowUp':
             keys.ArrowUp.pressed = true
+            Enemy2.velocity.y = -5
             break;
         case 'ArrowDown':
             keys.ArrowDown.pressed = true
@@ -365,12 +410,14 @@ addEventListener('keydown', ({ key }) => {
             break;
         case 'w':
             keys.w.pressed = true
+            Player2.velocity.y = -5
             break;
         case 's':
             keys.s.pressed = true
             break;
         case ' ':
             keys.space.pressed = true
+            Enemy2.attack()
             break;
         case 'Enter':
             keys.enter.pressed = true
@@ -409,7 +456,7 @@ addEventListener('keydown', ({ key }) => {
 })
 
 
-addEventListener('keyup', ({ key }) => {
+window.addEventListener('keyup', ({ key }) => {
     switch (key) {
         case 'a':
             keys.a.pressed = false
@@ -601,33 +648,63 @@ function reset() {
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
+    window.requestAnimationFrame(mainLoop);
     const elapsedTime = Date.now() - startTime;
     const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
     clock.innerHTML = `${secondsLeft}`;
 
-    if (isAlive(Player) && secondsLeft > 0) {
-        executePlayerMoves(Player);
-        executePlayerMoves(Enemy);
+    
+
+    // if (isAlive(Player) && secondsLeft > 0) {
+        // executePlayerMoves(Player);
+        // executePlayerMoves(Enemy);
         clearCanvas();
-        drawPlayers(Player);
-        drawPlayers(Enemy);
-        drawPlayerModelLoop(VergilIdleAnimationLeft);
-        drawPlayerModelLoop(VergilIdleAnimation);
-        animateGravity(Player);
-        animateGravity(Enemy);
-        collisionControl(Player);
-        collisionControl(Enemy);
-        projectileArray.forEach((projectile, index) => {
-            if (projectile.position.x + projectile.radius >= canvas.width) {
-                setTimeout(() => {
-                    projectileArray.splice(index, 1)
-                }, 0)
-            } else {
-                projectile.update()
-            }
-        });
-        requestAnimationFrame(mainLoop);
-    }
+        Enemy2.update();
+        Player2.update();
+
+        Player2.velocity.x = 0
+        if(keys.a.pressed) {
+            Player2.velocity.x = -1
+        } else if (keys.d.pressed){
+            Player2.velocity.x = 1
+        }
+
+        Enemy2.velocity.x = 0
+        if(keys.ArrowLeft.pressed) {
+            Enemy2.velocity.x = -1
+        } else if (keys.ArrowRight.pressed){
+            Enemy2.velocity.x = 1
+        }
+
+        if (Enemy2.attackBox.position.x + Enemy2.attackBox.width >= Player2.position.x && 
+            Enemy2.attackBox.position.x <= Player2.position.x + Player2.width &&
+            Enemy2.attackBox.position.y + Enemy2.attackBox.height >= Player2.position.y
+            && Enemy2.attackBox.position.y <= Player2.position.y + Player2.height &&
+            Enemy2.isAttacking
+        ) {
+            console.log('hit')
+        }
+
+
+        // drawPlayers(Player);
+        // drawPlayers(Enemy);
+        // drawPlayerModelLoop(VergilIdleAnimationLeft);
+        // drawPlayerModelLoop(VergilIdleAnimation);
+        // animateGravity(Player);
+        // animateGravity(Enemy);
+        // collisionControl(Player);
+        // collisionControl(Enemy);
+        // projectileArray.forEach((projectile, index) => {
+        //     if (projectile.position.x + projectile.radius >= canvas.width) {
+        //         setTimeout(() => {
+        //             projectileArray.splice(index, 1)
+        //         }, 0)
+        //     } else {
+        //         projectile.update()
+        //     }
+        // });
+        
+    // }
     if (secondsLeft <= 0) {
         // --- Stoppa huvudloopen när nedräkningen når 0 --- //
         clearCanvas();
