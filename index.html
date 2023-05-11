@@ -12,29 +12,23 @@
     <title>Saturday Night Gibb</title>
 </head>
 <body>
-    <header>     
-        <div class="gameOptions">
-            <nav>
-                <ul class="mainMenu">
-                    <li class="mainMenuItem"><button class="button-49" id="mainMenuBtn" role="button">MENU</button></li>
-                    <li class="mainMenuItem"><button class="button-49" id="pauseBtn" role="button">PAUSE</button></li>
-                    <li class="mainMenuItem"><button class="button-49" role="button">RULES</button></li>
-                    <li class="mainMenuItem"><button class="button-49" role="button">ABOUT</button></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
     <main>
         <div class="gameWindow" id="gameWindow">
-            <div id="interface">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+            <div id="interface" style="position: absolute;">
+                <div style="position: relative; height: 60px; width: 100%; display: flex; justify-content: flex-end;">
+                    <div  style="background-color: rgb(255, 0, 0); height: 60px; width: 100%;"></div>
+                    <div id="playerHealth" style="position: absolute; background-color: rgb(59, 161, 0); top: 0; right: 0; bottom: 0; width: 100%;"></div>
+                </div>
+                <!-- Timer -->
+                <div id="clock" style="background-color: red; height: 100px; width: 100px; flex-shrink: 0;"></div>
+                <!-- Enemy Health -->
+                <div style="position: relative; height: 60px; width: 100%;">
+                    <div  style="background-color: rgb(255, 0, 0); height: 60px;"></div>
+                    <div id="enemyHealth" style="position: absolute; background-color: rgb(59, 161, 0); top: 0; right: 0; bottom: 0; left:0"></div>
+                </div>
             </div>
             <button class="gameStartBtn" id="gameStartBtn" role="button"><span class="text">START GAME</span><span>START!</span></button>
-            <canvas id="canvas" width="1300px" height="700px"></canvas>
-            <div id="clock"></div>
+            <canvas id="canvas" width="100%" height="100%"></canvas>
         </div>
     </main>
     <script src="app.js"></script>

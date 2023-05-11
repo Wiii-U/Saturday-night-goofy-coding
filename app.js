@@ -5,6 +5,8 @@ const gameStartBtn = document.getElementById("gameStartBtn");
 const canvas = document.getElementById("canvas");
 const clock = document.getElementById('clock');
 const penn = canvas.getContext("2d");
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
 canvas.mid_height = canvas.height / 2;
 canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
@@ -60,26 +62,23 @@ class player{
 }
 
 class Sprite{
-    constructor({position, velocity, color = 'red'}) {
+    constructor({position, velocity, color = 'red', offset}) {
         this.position = position
         this.velocity = velocity
         this.width = 50
         this.height = 150
         this.attackBox = {
-            position:this.position,
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            offset: offset, 
             width: 100,
             height: 50
         }
         this.color = color
         this.isAttacking
-        // const image = new Image()
-        // image.src = 'Images/VergilIdleAnimationLeft.png'
-        // image.onload = () => {
-        //     const scale = 1
-        //     this.image = image
-        //     this.width = image.width * scale
-        //     this.height = image.height * scale
-        // }
+        this.health = 100
     }
 
     draw() {
@@ -87,12 +86,17 @@ class Sprite{
         penn.fillRect(this.position.x, this.position.y, this.width, this.height)
 
         // Attackbox ritas här
-        penn.fillStyle = 'green'
-        penn.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+        if(this.isAttacking) {
+            penn.fillStyle = 'green'
+            penn.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+        }
     }
 
     update() {
         this.draw()
+        this.attackBox.position.x = this.position.x + this.attackBox.offset.x
+        this.attackBox.position.y = this.position.y
+
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
 
@@ -114,24 +118,33 @@ class Sprite{
 
 const Enemy2 = new Sprite({
     position: {
-        x: 350,
+        x: canvas.width - 350,
         y: 100
     },
     velocity: {
         x: 0, 
         y: 0
     },
+    offset: {
+        x:-50,
+        y:0
+    }
+    
 })
 
 const Player2 = new Sprite({
     position: {
-        x: 700,
+        x: 350,
         y: 100,
     },
     velocity: {
         x: 0, 
         y: 0
     },
+    offset: {
+        x:0,
+        y:0
+    }
 })
 
 class projectile{
@@ -350,13 +363,12 @@ window.addEventListener('keydown', ({ key }) => {
             break;
         case ' ':
             keys.space.pressed = true
-            Enemy2.attack()
+            Enemy2.attack();
             break;
         case 'Enter':
             keys.enter.pressed = true
             break;
-        case 'j':
-            console.log('light_attack')            
+        case 'j':          
             const initialProjectilePosition = {
                 x: Player.posX,
                 y: Player.posY
@@ -370,10 +382,10 @@ window.addEventListener('keydown', ({ key }) => {
                 velocity: projectileVelocity
             }));
             Player.attack();
+            Player2.attack();
             keys.j.pressed = true
             break;
         case 'k':
-            console.log('heavy_attack')
             const judgementCutRange = 300;
             const regularJudgementCut = new judgementCut({
                 position: {
@@ -551,7 +563,10 @@ function sound(src) {
     };
 }
 
-const backgroundMusic = new sound("Music/BuryTheLight.mp3");
+let Music = {
+    VergilThemeMusic: {src:"Music/BuryTheLight.mp3"},
+}
+const VergilThemeMusic = new sound(Music.VergilThemeMusic.src);
 
 
 function isAlive(object) {
@@ -579,6 +594,36 @@ function reset() {
 }
 
 
+function determineWinner({player, enemy}) {
+    if (player.health === enemy.health) {
+        penn.font = "40px Cormorant Garamond, serif";
+        penn.fillStyle = 'black';
+        penn.fillText('Tie', canvas.mid_width, canvas.mid_height);
+    } else if (player.health > enemy.health) {
+        penn.font = "40px Cormorant Garamond, serif";
+        penn.fillStyle = 'black';
+        penn.fillText('Player wins', canvas.mid_width, canvas.mid_height);
+    } else if (player.health < enemy.health) {
+        penn.font = "40px Cormorant Garamond, serif";
+        penn.fillStyle = 'black';
+        penn.fillText('Enemy wins', canvas.mid_width, canvas.mid_height);
+    }
+}
+
+
+function rectangularCollision({rectangle1, rectangle2}) {
+    return (
+        rectangle1.attackBox.position.x + rectangle1.attackBox.width >= 
+            rectangle2.position.x && 
+        rectangle1.attackBox.position.x <= 
+            rectangle2.position.x + rectangle2.width &&
+        rectangle1.attackBox.position.y + rectangle1.attackBox.height >= 
+            rectangle2.position.y && 
+        rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height
+    )
+}
+
+
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
@@ -588,61 +633,95 @@ function mainLoop() {
 
     if (isAlive(Player) && isAlive(Enemy) && secondsLeft > 0) {
         window.requestAnimationFrame(mainLoop);
-        executePlayerMoves(Player);
-        executePlayerMoves(Enemy);
+        // executePlayerMoves(Player);
+        // executePlayerMoves(Enemy);
         clearCanvas();
-        // Enemy2.update();
-        // Player2.update();
+        Enemy2.update();
+        Player2.update();
 
-        // Player2.velocity.x = 0
-        // if(keys.a.pressed) {
-        //     Player2.velocity.x = -1
-        // } else if (keys.d.pressed){
-        //     Player2.velocity.x = 1
-        // }
+        Player2.velocity.x = 0
+        if(keys.a.pressed) {
+            Player2.velocity.x = -1
+        } else if (keys.d.pressed){
+            Player2.velocity.x = 1
+        }
 
-        // Enemy2.velocity.x = 0
-        // if(keys.ArrowLeft.pressed) {
-        //     Enemy2.velocity.x = -1
-        // } else if (keys.ArrowRight.pressed){
-        //     Enemy2.velocity.x = 1
-        // }
-
-        // if (Enemy2.attackBox.position.x + Enemy2.attackBox.width >= Player2.position.x && 
-        //     Enemy2.attackBox.position.x <= Player2.position.x + Player2.width &&
-        //     Enemy2.attackBox.position.y + Enemy2.attackBox.height >= Player2.position.y
-        //     && Enemy2.attackBox.position.y <= Player2.position.y + Player2.height &&
-        //     Enemy2.isAttacking
-        // ) {
-        //     console.log('hit')
-        // }
-
-
-        drawPlayers(Player);
-        drawPlayers(Enemy);
-        drawPlayerModelLoop(VergilIdleAnimationLeft);
-        drawPlayerModelLoop(VergilIdleAnimation);
-        animateGravity(Player);
-        animateGravity(Enemy);
-        collisionControl(Player);
-        collisionControl(Enemy);
-        projectileArray.forEach((projectile, index) => {
-            if (projectile.position.x + projectile.width >= canvas.width) {
-                setTimeout(() => {
-                    projectileArray.splice(index, 1)
-                }, 0)
-            } else {
-                projectile.update()
-            }
-        }); 
+        Enemy2.velocity.x = 0
+        if(keys.ArrowLeft.pressed) {
+            Enemy2.velocity.x = -1
+        } else if (keys.ArrowRight.pressed){
+            Enemy2.velocity.x = 1
+        }
+        if (
+            rectangularCollision({
+                rectangle1:Enemy2,
+                rectangle2:Player2
+            }) && Enemy2.isAttacking
+        ) {
+            Enemy2.isAttacking = false
+            Player2.health -= 5; 
+            document.querySelector('#playerHealth').style.width = Player2.health +'%';
+            console.log('Player attack succesful')
+        }
+        if (
+            rectangularCollision({
+                rectangle1:Player2,
+                rectangle2:Enemy2
+            }) && 
+            Player2.isAttacking
+        ) {
+            Player2.isAttacking = false
+            Enemy2.health -= 5; 
+            document.querySelector('#enemyHealth').style.width = Enemy2.health +'%';
+            console.log('Enemy attack succesful')
+        }
+        // drawPlayers(Player);
+        // drawPlayers(Enemy);
+        // drawPlayerModelLoop(VergilIdleAnimationLeft);
+        // drawPlayerModelLoop(VergilIdleAnimation);
+        // animateGravity(Player);
+        // animateGravity(Enemy);
+        // collisionControl(Player);
+        // collisionControl(Enemy);
+        // projectileArray.forEach((projectile, index) => {
+        //     if (projectile.position.x + projectile.width >= canvas.width) {
+        //         setTimeout(() => {
+        //             projectileArray.splice(index, 1)
+        //         }, 0)
+        //     } else {
+        //         projectile.update()
+        //     }
+        // }); 
+    }
+    if (Enemy2.health <= 0 || Player2.health <= 0) {
+        clearCanvas();
+        determineWinner({
+            player: Player2, 
+            enemy: Enemy2
+        })
+        penn.fillStyle = 'white';
+        penn.fillRect(0, 0, canvas.width, canvas.height)
+        penn.font = "40px Cormorant Garamond, serif";
+        penn.fillStyle = 'black';
+        penn.fillText('Press ENTER To Reset', 0, ground);
+        VergilThemeMusic.stop();
+        if (keys.enter.pressed) {
+            reset();
+        }
     }
     if (secondsLeft <= 0) {
         // --- Stoppa huvudloopen när nedräkningen når 0 --- //
         clearCanvas();
+        determineWinner({
+            player: Player2,
+            enemy: Enemy2
+        })
+        penn.fillStyle = 'white';
+        penn.fillRect(0, 0, canvas.width, canvas.height)
         penn.font = "40px Cormorant Garamond, serif";
         penn.fillStyle = 'black';
-        penn.fillText('Press ENTER for Main Menu.', 10, ground);
-        backgroundMusic.stop();
+        penn.fillText('Press ENTER To Reset', 0, ground);
+        VergilThemeMusic.stop();
         if (keys.enter.pressed) {
             reset();
         }
@@ -654,7 +733,7 @@ gameStartBtn.onclick = function (e) {
     e.preventDefault()
 
     gameStartBtn.style.display = 'none';
-    // backgroundMusic.play();
+    VergilThemeMusic.play();
 }
 
 
