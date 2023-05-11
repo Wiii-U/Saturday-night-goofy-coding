@@ -1,7 +1,6 @@
 // Deklarerar de fundamentala variablerna.
 const gameMenuBtn = document.getElementById('mainMenuBtn');
 const pauseBtn = document.getElementById('pauseBtn');
-const gameMenu = document.getElementById('gameMenu');
 const gameStartBtn = document.getElementById("gameStartBtn");
 const canvas = document.getElementById("canvas");
 const clock = document.getElementById('clock');
@@ -36,6 +35,27 @@ class player{
         this.kills = kills;
         this.deaths = deaths;
         this.shield = shield;
+        this.attackBox = {
+            position: {
+                x:this.posX,
+                y:this.posY
+            },
+            width: 100,
+            height: this.height
+        }
+        this.isAttacking
+    }
+
+    draw() {
+        penn.fillStyle = 'green'
+        penn.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+    }
+
+    attack() {
+        this.isAttacking = true
+        setTimeout(() => {
+            this.isAttacking = false
+        }, 100);
     }
 }
 
@@ -59,7 +79,7 @@ class Sprite{
         //     this.image = image
         //     this.width = image.width * scale
         //     this.height = image.height * scale
-        // } 
+        // }
     }
 
     draw() {
@@ -101,7 +121,6 @@ const Enemy2 = new Sprite({
         x: 0, 
         y: 0
     },
-    color: 'blue'
 })
 
 const Player2 = new Sprite({
@@ -119,15 +138,21 @@ class projectile{
     constructor({position, velocity}) {
         this.position = position
         this.velocity = velocity
-        this.radius = 10
+        this.width = 100
+        this.height = 167
+        const image = new Image()
+        image.src = 'Images/Mirageslash.png'
+        image.onload = () => {
+            const scale = 1
+            this.image = image
+            this.width = image.width * scale
+            this.height = image.height * scale
+        }
     }
 
     draw() {
-        penn.beginPath()
-        penn.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-        penn.fillStyle = 'red'
-        penn.fill()
-        penn.closePath()
+        penn.fillStyle = 'green';
+        penn.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 
     update() {
@@ -203,6 +228,8 @@ function IdleVergilSpritePC (options) {
     that.width = options.width;
     that.height = options.height;
     that.image = options.image;
+    that.posX = options.posX;
+    that.posY = options.posY;
     
     that.update = function () {
 
@@ -229,97 +256,7 @@ function IdleVergilSpritePC (options) {
         penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
         
         // Rita animationen
-        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, Player.posX, Player.posY, that.width / numberOfFrames, that.height);
-    };
-    
-    return that;
-}
-
-
-function IdleVergilSpritePC (options) {
-
-    let that = {},
-        frameIndex = 0,
-        tickCount = 0,
-        ticksPerFrame = options.ticksPerFrame || 0,
-        numberOfFrames = options.numberOfFrames || 1;
-    
-    that.context = options.context;
-    that.width = options.width;
-    that.height = options.height;
-    that.image = options.image;
-    
-    that.update = function () {
-
-        tickCount += 1;
-
-        if (tickCount > ticksPerFrame) {
-
-            tickCount = 0;
-            
-            // Om det nuvarande indexet är i intervallet.
-            if (frameIndex < numberOfFrames - 1) {	
-                // Gå till nästa frame
-                frameIndex += 1;
-            } else {
-                frameIndex = 0;
-            }
-        }
-    };
-    
-    that.render = function () {
-    
-        // Tömma canvasen
-        penn.fillStyle = "transparent";
-        penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
-        
-        // Rita animationen
-        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, Player.posX, Player.posY, that.width / numberOfFrames, that.height);
-    };
-    
-    return that;
-}
-
-
-function IdleVergilSpriteEnemy (options) {
-
-    let that = {},
-        frameIndex = 0,
-        tickCount = 0,
-        ticksPerFrame = options.ticksPerFrame || 0,
-        numberOfFrames = options.numberOfFrames || 1;
-    
-    that.context = options.context;
-    that.width = options.width;
-    that.height = options.height;
-    that.image = options.image;
-    
-    that.update = function () {
-
-        tickCount += 1;
-
-        if (tickCount > ticksPerFrame) {
-
-            tickCount = 0;
-            
-            // Om det nuvarande indexet är i intervallet.
-            if (frameIndex < numberOfFrames - 1) {	
-                // Gå till nästa frame
-                frameIndex += 1;
-            } else {
-                frameIndex = 0;
-            }
-        }
-    };
-    
-    that.render = function () {
-    
-        // Tömma canvasen
-        penn.fillStyle = "transparent";
-        penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
-        
-        // Rita animationen
-        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+39, 10, that.width / numberOfFrames, that.height, Enemy.posX, Enemy.posY, that.width / numberOfFrames, that.height);
+        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, that.posX, that.posY, that.width / numberOfFrames, that.height);
     };
     
     return that;
@@ -332,42 +269,38 @@ function randomXToY(minVal, maxVal) {
 }
 
 
-const VergilIdleAnimationLeftImg = new Image();
-VergilIdleAnimationLeftImg.src = "Images/VergilIdleAnimationLeft.png";
-
-const VergilIdleAnimationLeft = IdleVergilSpriteEnemy({
-    context: canvas.getContext("2d"),
-    width: 576,
-    height: 192,
-    image: VergilIdleAnimationLeftImg,
-    numberOfFrames: 3,
-	ticksPerFrame: 15,
-});
-
-
-const VergilIdleAnimationImg = new Image();
-VergilIdleAnimationImg.src = "Images/VergilIdleAnimation.png";
-
-const VergilIdleAnimation = IdleVergilSpritePC({
-    context: canvas.getContext("2d"),
-    width: 576,
-    height: 192,
-    image: VergilIdleAnimationImg,
-    numberOfFrames: 3,
-	ticksPerFrame: 15,
-});
-
-
 function drawPlayerModelLoop(playerModel) {
     playerModel.update();
     playerModel.render();
 }
 
-
-// Initialize, spelaren och andra klasser.
+const VergilIdleAnimationLeftImg = new Image();
+VergilIdleAnimationLeftImg.src = "Images/VergilIdleAnimationLeft.png";
+const VergilIdleAnimationImg = new Image();
+VergilIdleAnimationImg.src = "Images/VergilIdleAnimation.png";
 const Player = new player("Vergil", "red", VergilIdleAnimationImg.src, 120, 167, 60, 0, 0, 0, 100, 0, 0, 0);
 const Enemy = new player("Vergil", "red", VergilIdleAnimationLeftImg.src, 120, 167, canvas.width - (Player.posX+ Player.width), 0, 0, 0, 100, 0, 0, 0);
 const projectileArray = [];
+const VergilIdleAnimationLeft = IdleVergilSpritePC({
+    context: canvas.getContext("2d"),
+    width: 576,
+    height: 192,
+    image: VergilIdleAnimationLeftImg,
+    posX: Enemy.posX,
+    posY: Enemy.posY,
+    numberOfFrames: 3,
+	ticksPerFrame: 15
+});
+const VergilIdleAnimation = IdleVergilSpritePC({
+    context: canvas.getContext("2d"),
+    width: 576,
+    height: 192,
+    image: VergilIdleAnimationImg,
+    posX: Player.posX,
+    posY: Player.posY,
+    numberOfFrames: 3,
+	ticksPerFrame: 15,
+});
 
 
 const keys = {
@@ -425,8 +358,8 @@ window.addEventListener('keydown', ({ key }) => {
         case 'j':
             console.log('light_attack')            
             const initialProjectilePosition = {
-                x: Player.posX + Player.width + 2,
-                y: Player.posY + (Player.height / 2)
+                x: Player.posX,
+                y: Player.posY
             };
             const projectileVelocity = {
                 x: 3 + speedX,
@@ -436,6 +369,7 @@ window.addEventListener('keydown', ({ key }) => {
                 position: initialProjectilePosition,
                 velocity: projectileVelocity
             }));
+            Player.attack();
             keys.j.pressed = true
             break;
         case 'k':
@@ -449,7 +383,7 @@ window.addEventListener('keydown', ({ key }) => {
                 duration: 1000
             });
             regularJudgementCut.draw();
-            console.log(regularJudgementCut);
+            Player.attack()
             keys.k.pressed = true
             break;
     }
@@ -648,63 +582,60 @@ function reset() {
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
-    window.requestAnimationFrame(mainLoop);
     const elapsedTime = Date.now() - startTime;
     const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
     clock.innerHTML = `${secondsLeft}`;
 
-    
-
-    // if (isAlive(Player) && secondsLeft > 0) {
-        // executePlayerMoves(Player);
-        // executePlayerMoves(Enemy);
+    if (isAlive(Player) && isAlive(Enemy) && secondsLeft > 0) {
+        window.requestAnimationFrame(mainLoop);
+        executePlayerMoves(Player);
+        executePlayerMoves(Enemy);
         clearCanvas();
-        Enemy2.update();
-        Player2.update();
+        // Enemy2.update();
+        // Player2.update();
 
-        Player2.velocity.x = 0
-        if(keys.a.pressed) {
-            Player2.velocity.x = -1
-        } else if (keys.d.pressed){
-            Player2.velocity.x = 1
-        }
+        // Player2.velocity.x = 0
+        // if(keys.a.pressed) {
+        //     Player2.velocity.x = -1
+        // } else if (keys.d.pressed){
+        //     Player2.velocity.x = 1
+        // }
 
-        Enemy2.velocity.x = 0
-        if(keys.ArrowLeft.pressed) {
-            Enemy2.velocity.x = -1
-        } else if (keys.ArrowRight.pressed){
-            Enemy2.velocity.x = 1
-        }
+        // Enemy2.velocity.x = 0
+        // if(keys.ArrowLeft.pressed) {
+        //     Enemy2.velocity.x = -1
+        // } else if (keys.ArrowRight.pressed){
+        //     Enemy2.velocity.x = 1
+        // }
 
-        if (Enemy2.attackBox.position.x + Enemy2.attackBox.width >= Player2.position.x && 
-            Enemy2.attackBox.position.x <= Player2.position.x + Player2.width &&
-            Enemy2.attackBox.position.y + Enemy2.attackBox.height >= Player2.position.y
-            && Enemy2.attackBox.position.y <= Player2.position.y + Player2.height &&
-            Enemy2.isAttacking
-        ) {
-            console.log('hit')
-        }
+        // if (Enemy2.attackBox.position.x + Enemy2.attackBox.width >= Player2.position.x && 
+        //     Enemy2.attackBox.position.x <= Player2.position.x + Player2.width &&
+        //     Enemy2.attackBox.position.y + Enemy2.attackBox.height >= Player2.position.y
+        //     && Enemy2.attackBox.position.y <= Player2.position.y + Player2.height &&
+        //     Enemy2.isAttacking
+        // ) {
+        //     console.log('hit')
+        // }
 
 
-        // drawPlayers(Player);
-        // drawPlayers(Enemy);
-        // drawPlayerModelLoop(VergilIdleAnimationLeft);
-        // drawPlayerModelLoop(VergilIdleAnimation);
-        // animateGravity(Player);
-        // animateGravity(Enemy);
-        // collisionControl(Player);
-        // collisionControl(Enemy);
-        // projectileArray.forEach((projectile, index) => {
-        //     if (projectile.position.x + projectile.radius >= canvas.width) {
-        //         setTimeout(() => {
-        //             projectileArray.splice(index, 1)
-        //         }, 0)
-        //     } else {
-        //         projectile.update()
-        //     }
-        // });
-        
-    // }
+        drawPlayers(Player);
+        drawPlayers(Enemy);
+        drawPlayerModelLoop(VergilIdleAnimationLeft);
+        drawPlayerModelLoop(VergilIdleAnimation);
+        animateGravity(Player);
+        animateGravity(Enemy);
+        collisionControl(Player);
+        collisionControl(Enemy);
+        projectileArray.forEach((projectile, index) => {
+            if (projectile.position.x + projectile.width >= canvas.width) {
+                setTimeout(() => {
+                    projectileArray.splice(index, 1)
+                }, 0)
+            } else {
+                projectile.update()
+            }
+        }); 
+    }
     if (secondsLeft <= 0) {
         // --- Stoppa huvudloopen när nedräkningen når 0 --- //
         clearCanvas();
