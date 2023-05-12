@@ -61,62 +61,15 @@ class player{
     }
 }
 
-class Sprite{
-    constructor({position, velocity, color = 'red', offset}) {
-        this.position = position
-        this.velocity = velocity
-        this.width = 50
-        this.height = 150
-        this.attackBox = {
-            position: {
-                x: this.position.x,
-                y: this.position.y
-            },
-            offset: offset, 
-            width: 100,
-            height: 50
-        }
-        this.color = color
-        this.isAttacking
-        this.health = 100
-    }
 
-    draw() {
-        penn.fillStyle = this.color
-        penn.fillRect(this.position.x, this.position.y, this.width, this.height)
-
-        // Attackbox ritas här
-        if(this.isAttacking) {
-            penn.fillStyle = 'green'
-            penn.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
-        }
-    }
-
-    update() {
-        this.draw()
-        this.attackBox.position.x = this.position.x + this.attackBox.offset.x
-        this.attackBox.position.y = this.position.y
-
-        this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
-
-        if(this.position.y + this.height >= canvas.height) {
-            this.velocity.y = 0
-        }
-        else {
-            this.velocity.y += gravity.y
-        }
-    }
-
-    attack() {
-        this.isAttacking = true
-        setTimeout(() => {
-            this.isAttacking = false
-        }, 100);
-    }
-}
-
-const Enemy2 = new Sprite({
+const background = new Sprite({
+    position: {
+        x:0,
+        y:0
+    },
+    imageSrc: './Images/backgroundNight.png'
+})
+const Enemy2 = new Fighter({
     position: {
         x: canvas.width - 350,
         y: 100
@@ -132,7 +85,7 @@ const Enemy2 = new Sprite({
     
 })
 
-const Player2 = new Sprite({
+const Player2 = new Fighter({
     position: {
         x: 350,
         y: 100,
@@ -273,12 +226,6 @@ function IdleVergilSpritePC (options) {
     };
     
     return that;
-}
-
-
-function randomXToY(minVal, maxVal) {
-  var randVal = minVal+(Math.random()*(maxVal-minVal));
-  return Math.round(randVal);
 }
 
 
@@ -487,19 +434,6 @@ function executePlayerMoves(object) {
 }
 
 
-// Tids variabler för Timern.
-let startTime;
-const startingSeconds = 100;
-let time = startingSeconds;
-function startCountdown() {
-    // Spara starttiden
-    startTime = Date.now();
-  
-    // Starta huvudloopen
-    requestAnimationFrame(mainLoop);
-}
-
-
 function drawPlayers(object) {
     penn.fillStyle = object.color;
     penn.fillRect(object.posX, object.posY, object.width, object.height);
@@ -548,81 +482,6 @@ function clearCanvas() {
 }
 
 
-function sound(src) {
-    this.sound = document.createElement("audio");
-    this.sound.src = src;
-    this.sound.setAttribute("preload", "auto");
-    this.sound.setAttribute("controls", "none");
-    this.sound.style.display = "none";
-    document.body.appendChild(this.sound);
-    this.play = function () {
-        this.sound.play();
-    };
-    this.stop = function () {
-        this.sound.pause();
-    };
-}
-
-let Music = {
-    VergilThemeMusic: {src:"Music/BuryTheLight.mp3"},
-}
-const VergilThemeMusic = new sound(Music.VergilThemeMusic.src);
-
-
-function isAlive(object) {
-    if (object.health <= 0) {
-        return false
-    }
-    else {
-        return true
-    }
-}
-
-
-function isPaused() {
-    if (pauseBtn.clicked == true) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-
-function reset() {
-    window.location.reload()
-}
-
-
-function determineWinner({player, enemy}) {
-    if (player.health === enemy.health) {
-        penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'black';
-        penn.fillText('Tie', canvas.mid_width, canvas.mid_height);
-    } else if (player.health > enemy.health) {
-        penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'black';
-        penn.fillText('Player wins', canvas.mid_width, canvas.mid_height);
-    } else if (player.health < enemy.health) {
-        penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'black';
-        penn.fillText('Enemy wins', canvas.mid_width, canvas.mid_height);
-    }
-}
-
-
-function rectangularCollision({rectangle1, rectangle2}) {
-    return (
-        rectangle1.attackBox.position.x + rectangle1.attackBox.width >= 
-            rectangle2.position.x && 
-        rectangle1.attackBox.position.x <= 
-            rectangle2.position.x + rectangle2.width &&
-        rectangle1.attackBox.position.y + rectangle1.attackBox.height >= 
-            rectangle2.position.y && 
-        rectangle1.attackBox.position.y <= rectangle2.position.y + rectangle2.height
-    )
-}
-
 
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
@@ -636,6 +495,7 @@ function mainLoop() {
         // executePlayerMoves(Player);
         // executePlayerMoves(Enemy);
         clearCanvas();
+        background.update()
         Enemy2.update();
         Player2.update();
 
@@ -694,33 +554,38 @@ function mainLoop() {
         // }); 
     }
     if (Enemy2.health <= 0 || Player2.health <= 0) {
-        clearCanvas();
+        // clearCanvas();
         determineWinner({
             player: Player2, 
             enemy: Enemy2
         })
-        penn.fillStyle = 'white';
-        penn.fillRect(0, 0, canvas.width, canvas.height)
-        penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'black';
-        penn.fillText('Press ENTER To Reset', 0, ground);
+        setTimeout(() => {
+            penn.fillStyle = 'white';
+            penn.fillRect(0, 0, canvas.width, canvas.height)
+            penn.font = "40px Cormorant Garamond, serif";
+            penn.fillStyle = 'black';
+            penn.fillText('Press ENTER To Reset', 0, ground);
+        }, 500);
         VergilThemeMusic.stop();
         if (keys.enter.pressed) {
             reset();
         }
+        
     }
     if (secondsLeft <= 0) {
         // --- Stoppa huvudloopen när nedräkningen når 0 --- //
-        clearCanvas();
+        // clearCanvas();
         determineWinner({
             player: Player2,
             enemy: Enemy2
         })
-        penn.fillStyle = 'white';
-        penn.fillRect(0, 0, canvas.width, canvas.height)
-        penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'black';
-        penn.fillText('Press ENTER To Reset', 0, ground);
+        setTimeout(() => {
+            penn.fillStyle = 'white';
+            penn.fillRect(0, 0, canvas.width, canvas.height)
+            penn.font = "40px Cormorant Garamond, serif";
+            penn.fillStyle = 'black';
+            penn.fillText('Press ENTER To Reset', 0, ground);
+        }, 500);
         VergilThemeMusic.stop();
         if (keys.enter.pressed) {
             reset();
@@ -733,7 +598,7 @@ gameStartBtn.onclick = function (e) {
     e.preventDefault()
 
     gameStartBtn.style.display = 'none';
-    VergilThemeMusic.play();
+    // VergilThemeMusic.play();
 }
 
 
