@@ -12,14 +12,14 @@ canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
 const ground = canvas.height;
 const bounce = 0;
-const gravity = {x: 0, y: 0.07};
+const gravity = {x: 0, y: 0.3};
 penn.fillStyle = "white";
 penn.fillRect(0, 0, canvas.width, canvas.height);
 
 
 // Intervall av.
-const speedX = 3; // Horizontal speed.
-const speedY = 5; // Vertical speed.
+const speedX = 5; // Horizontal speed.
+const speedY = 7; // Vertical speed.
 
 
 class player{
@@ -61,13 +61,12 @@ class player{
     }
 }
 
-
-const background = new Sprite({
+const background =  new Sprite({
     position: {
         x:0,
         y:0
     },
-    imageSrc: './Images/backgroundNight.png'
+    imageSrc:'Images/backgroundNight.png'
 })
 const Enemy2 = new Fighter({
     position: {
@@ -287,7 +286,7 @@ window.addEventListener('keydown', ({ key }) => {
             break;
         case 'ArrowUp':
             keys.ArrowUp.pressed = true
-            Enemy2.velocity.y = -5
+            Enemy2.velocity.y = -10
             break;
         case 'ArrowDown':
             keys.ArrowDown.pressed = true
@@ -303,7 +302,7 @@ window.addEventListener('keydown', ({ key }) => {
             break;
         case 'w':
             keys.w.pressed = true
-            Player2.velocity.y = -5
+            Player2.velocity.y = -10
             break;
         case 's':
             keys.s.pressed = true
@@ -495,22 +494,22 @@ function mainLoop() {
         // executePlayerMoves(Player);
         // executePlayerMoves(Enemy);
         clearCanvas();
-        background.update()
+        background.update();
         Enemy2.update();
         Player2.update();
 
         Player2.velocity.x = 0
         if(keys.a.pressed) {
-            Player2.velocity.x = -1
+            Player2.velocity.x = -3
         } else if (keys.d.pressed){
-            Player2.velocity.x = 1
+            Player2.velocity.x = 3
         }
 
         Enemy2.velocity.x = 0
         if(keys.ArrowLeft.pressed) {
-            Enemy2.velocity.x = -1
+            Enemy2.velocity.x = -3
         } else if (keys.ArrowRight.pressed){
-            Enemy2.velocity.x = 1
+            Enemy2.velocity.x = 3
         }
         if (
             rectangularCollision({
@@ -555,6 +554,7 @@ function mainLoop() {
     }
     if (Enemy2.health <= 0 || Player2.health <= 0) {
         // clearCanvas();
+        VergilThemeMusic.stop();
         determineWinner({
             player: Player2, 
             enemy: Enemy2
@@ -566,7 +566,6 @@ function mainLoop() {
             penn.fillStyle = 'black';
             penn.fillText('Press ENTER To Reset', 0, ground);
         }, 500);
-        VergilThemeMusic.stop();
         if (keys.enter.pressed) {
             reset();
         }
@@ -575,6 +574,7 @@ function mainLoop() {
     if (secondsLeft <= 0) {
         // --- Stoppa huvudloopen när nedräkningen når 0 --- //
         // clearCanvas();
+        VergilThemeMusic.stop();
         determineWinner({
             player: Player2,
             enemy: Enemy2
@@ -586,7 +586,7 @@ function mainLoop() {
             penn.fillStyle = 'black';
             penn.fillText('Press ENTER To Reset', 0, ground);
         }, 500);
-        VergilThemeMusic.stop();
+        
         if (keys.enter.pressed) {
             reset();
         }
