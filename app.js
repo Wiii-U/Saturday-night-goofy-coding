@@ -12,7 +12,7 @@ canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
 const ground = canvas.height;
 const bounce = 0;
-const gravity = {x: 0, y: 0.3};
+const gravity =  0.15
 penn.fillStyle = "white";
 penn.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -66,8 +66,19 @@ const background =  new Sprite({
         x:0,
         y:0
     },
-    imageSrc:'Images/backgroundNight.png'
+    imageSrc:'Images/backgroundNight.png',
 })
+
+const mirageSlash = new Sprite({
+    position: {
+        x:0,
+        y:0
+    },
+    imageSrc: 'Images/Mirageslash.png',
+    scale:1,
+    framesMax:10,
+})
+
 const Enemy2 = new Fighter({
     position: {
         x: canvas.width - 350,
@@ -79,9 +90,10 @@ const Enemy2 = new Fighter({
     },
     offset: {
         x:-50,
-        y:0
-    }
-    
+        y:20
+    },
+    imageSrc: 'Images/VergilIdleAnimationLeft.png',
+    framesMax: 3,
 })
 
 const Player2 = new Fighter({
@@ -95,7 +107,31 @@ const Player2 = new Fighter({
     },
     offset: {
         x:0,
-        y:0
+        y:20
+    },
+    imageSrc: 'Images/VergilIdleAnimation.png',
+    framesMax: 3,
+    sprites: {
+        idle: {
+            imageSrc: 'Images/VergilIdleAnimation.png',
+            framesMax: 3,
+        },
+        run: {
+            imageSrc: 'Images/VergilIdleAnimation.png',
+            framesMax: 3,
+        },
+        jump: {
+            imageSrc: 'Images/VergilIdleAnimation.png',
+            framesMax: 3,
+        },
+        fall: {
+            imageSrc: 'Images/VergilIdleAnimation.png',
+            framesMax: 3,
+        },
+        attack1: {
+            imageSrc: 'Images/Mirageslash.png',
+            framesMax: 10,
+        },
     }
 })
 
@@ -481,7 +517,6 @@ function clearCanvas() {
 }
 
 
-
 // Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
 // mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
 function mainLoop() {
@@ -495,22 +530,38 @@ function mainLoop() {
         // executePlayerMoves(Enemy);
         clearCanvas();
         background.update();
-        Enemy2.update();
+        // mirageSlash.update();
+        // Enemy2.update();
         Player2.update();
 
         Player2.velocity.x = 0
+        Enemy2.velocity.x = 0
+
+        // Player movement
         if(keys.a.pressed) {
             Player2.velocity.x = -3
+            Player2.switchSprites('run')
         } else if (keys.d.pressed){
             Player2.velocity.x = 3
+            Player2.switchSprites('run')
+        } else {
+            Player2.switchSprites('idle')
         }
 
-        Enemy2.velocity.x = 0
-        if(keys.ArrowLeft.pressed) {
+        if (Player2.velocity.y < 0) {
+            Player2.switchSprites('jump')
+        } else if (Player2.velocity.y > 0) {
+            Player2.switchSprites('fall')
+        }
+
+        
+        if (keys.ArrowLeft.pressed) {
             Enemy2.velocity.x = -3
         } else if (keys.ArrowRight.pressed){
             Enemy2.velocity.x = 3
         }
+
+
         if (
             rectangularCollision({
                 rectangle1:Enemy2,

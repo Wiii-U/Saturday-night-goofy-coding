@@ -22,8 +22,8 @@ body {
 
 
 #clock {
-    font-size: 36px;
-    color: rgb(0, 0, 0);
+    font-size: 24px;
+    color: rgb(255, 255, 255);
     text-align: center;
     display: flex;
     align-items: center;
