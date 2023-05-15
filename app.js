@@ -135,33 +135,6 @@ const Player2 = new Fighter({
 
 let projectileArray = [];
 
-class projectile{
-    constructor({position, velocity}) {
-        this.position = position
-        this.velocity = velocity
-        this.width = 100
-        this.height = 167
-        const image = new Image()
-        image.src = 'Images/Mirageslash.png'
-        image.onload = () => {
-            const scale = 1
-            this.image = image
-            this.width = image.width * scale
-            this.height = image.height * scale
-        }
-    }
-
-    draw() {
-        penn.fillStyle = 'green';
-        penn.fillRect(this.position.x, this.position.y, this.width, this.height)
-    }
-
-    update() {
-        this.draw()
-        this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
-    }
-}
 
 
 class judgementCut{
@@ -270,12 +243,14 @@ window.addEventListener('keydown', ({ key }) => {
         case ' ':
             keys.space.pressed = true
             Enemy2.attack();
+            Enemy2.switchSprites('attack1')
             break;
         case 'Enter':
             keys.enter.pressed = true
             break;
         case 'j':          
             Player2.attack();
+            Player2.switchSprites('attack1')
             keys.j.pressed = true
             break;
         case 'k':
@@ -291,6 +266,8 @@ window.addEventListener('keydown', ({ key }) => {
                 position: initialProjectilePosition,
                 velocity: projectileVelocity
             }));
+            console.log(projectileArray);
+            Player2.attack();
             keys.k.pressed = true
             break;
     }
@@ -482,7 +459,6 @@ function mainLoop() {
             penn.fillStyle = 'black';
             penn.fillText('Press ENTER To Reset', 0, ground);
         }, 500);
-        
         if (keys.enter.pressed) {
             reset();
         }
