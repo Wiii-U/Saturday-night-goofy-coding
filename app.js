@@ -21,46 +21,6 @@ penn.fillRect(0, 0, canvas.width, canvas.height);
 const speedX = 5; // Horizontal speed.
 const speedY = 7; // Vertical speed.
 
-
-class player{
-    constructor(name, color, image, width, height, posX, posY, yvelocity, xvelocity, health, kills, deaths, shield) {
-        this.name = name;
-        this.color = color;
-        this.image = image;
-        this.width = width;
-        this.height = height;
-        this.posX = posX;
-        this.posY = posY;
-        this.yvelocity = yvelocity;
-        this.xvelocity = xvelocity;
-        this.health = health;
-        this.kills = kills;
-        this.deaths = deaths;
-        this.shield = shield;
-        this.attackBox = {
-            position: {
-                x:this.posX,
-                y:this.posY
-            },
-            width: 100,
-            height: this.height
-        }
-        this.isAttacking
-    }
-
-    draw() {
-        penn.fillStyle = 'green'
-        penn.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
-    }
-
-    attack() {
-        this.isAttacking = true
-        setTimeout(() => {
-            this.isAttacking = false
-        }, 100);
-    }
-}
-
 const background =  new Sprite({
     position: {
         x:0,
@@ -89,11 +49,41 @@ const Enemy2 = new Fighter({
         y: 0
     },
     offset: {
-        x:-50,
+        x:0,
         y:20
     },
     imageSrc: 'Images/VergilIdleAnimationLeft.png',
     framesMax: 3,
+    sprites: {
+        idle: {
+            imageSrc: 'Images/VergilIdleAnimationLeft.png',
+            framesMax: 3,
+        },
+        run: {
+            imageSrc: 'Images/VergilIdleAnimationLeft.png',
+            framesMax: 3,
+        },
+        jump: {
+            imageSrc: 'Images/VergilIdleAnimationLeft.png',
+            framesMax: 3,
+        },
+        fall: {
+            imageSrc: 'Images/VergilIdleAnimationLeft.png',
+            framesMax: 3,
+        },
+        attack1: {
+            imageSrc: 'Images/Vergil - Impostor - attack1.png',
+            framesMax: 10,
+        },
+    },
+    attackBox: {
+        offset: {
+            x:0,
+            y:-5
+        },
+        width: 120,
+        height: 105
+    }
 })
 
 const Player2 = new Fighter({
@@ -129,11 +119,21 @@ const Player2 = new Fighter({
             framesMax: 3,
         },
         attack1: {
-            imageSrc: 'Images/Mirageslash.png',
+            imageSrc: 'Images/Vergil - attack1.png',
             framesMax: 10,
         },
+    },
+    attackBox: {
+        offset: {
+            x:72,
+            y:-5
+        },
+        width: 120,
+        height: 105
     }
 })
+
+let projectileArray = [];
 
 class projectile{
     constructor({position, velocity}) {
@@ -217,87 +217,6 @@ class judgementCut{
 }
 
 
-function IdleVergilSpritePC (options) {
-
-    let that = {},
-        frameIndex = 0,
-        tickCount = 0,
-        ticksPerFrame = options.ticksPerFrame || 0,
-        numberOfFrames = options.numberOfFrames || 1;
-    
-    that.context = options.context;
-    that.width = options.width;
-    that.height = options.height;
-    that.image = options.image;
-    that.posX = options.posX;
-    that.posY = options.posY;
-    
-    that.update = function () {
-
-        tickCount += 1;
-
-        if (tickCount > ticksPerFrame) {
-
-            tickCount = 0;
-            
-            // Om det nuvarande indexet är i intervallet.
-            if (frameIndex < numberOfFrames - 1) {	
-                // Gå till nästa frame
-                frameIndex += 1;
-            } else {
-                frameIndex = 0;
-            }
-        }
-    };
-    
-    that.render = function () {
-    
-        // Tömma canvasen
-        penn.fillStyle = "transparent";
-        penn.fillRect(0, 0, that.width/numberOfFrames , that.height);
-        
-        // Rita animationen
-        penn.drawImage(that.image, frameIndex * that.width / numberOfFrames+30, 10, that.width / numberOfFrames, that.height, that.posX, that.posY, that.width / numberOfFrames, that.height);
-    };
-    
-    return that;
-}
-
-
-function drawPlayerModelLoop(playerModel) {
-    playerModel.update();
-    playerModel.render();
-}
-
-const VergilIdleAnimationLeftImg = new Image();
-VergilIdleAnimationLeftImg.src = "Images/VergilIdleAnimationLeft.png";
-const VergilIdleAnimationImg = new Image();
-VergilIdleAnimationImg.src = "Images/VergilIdleAnimation.png";
-const Player = new player("Vergil", "red", VergilIdleAnimationImg.src, 120, 167, 60, 0, 0, 0, 100, 0, 0, 0);
-const Enemy = new player("Vergil", "red", VergilIdleAnimationLeftImg.src, 120, 167, canvas.width - (Player.posX+ Player.width), 0, 0, 0, 100, 0, 0, 0);
-const projectileArray = [];
-const VergilIdleAnimationLeft = IdleVergilSpritePC({
-    context: canvas.getContext("2d"),
-    width: 576,
-    height: 192,
-    image: VergilIdleAnimationLeftImg,
-    posX: Enemy.posX,
-    posY: Enemy.posY,
-    numberOfFrames: 3,
-	ticksPerFrame: 15
-});
-const VergilIdleAnimation = IdleVergilSpritePC({
-    context: canvas.getContext("2d"),
-    width: 576,
-    height: 192,
-    image: VergilIdleAnimationImg,
-    posX: Player.posX,
-    posY: Player.posY,
-    numberOfFrames: 3,
-	ticksPerFrame: 15,
-});
-
-
 const keys = {
     a: { pressed:false},
     ArrowUp: { pressed:false},
@@ -311,7 +230,8 @@ const keys = {
     enter: {pressed:false},
     j: {pressed:false},
     k: {pressed:false},
-    jumping: {pressed:false}
+    jumping: {pressed:false},
+    p: {pressed:false},
 }
 
 
@@ -319,6 +239,10 @@ window.addEventListener('keydown', ({ key }) => {
     switch (key) {
         case 'a':
             keys.a.pressed = true
+            break;
+        case 'p':
+            keys.p.pressed = true
+            pauseGame();
             break;
         case 'ArrowUp':
             keys.ArrowUp.pressed = true
@@ -351,9 +275,13 @@ window.addEventListener('keydown', ({ key }) => {
             keys.enter.pressed = true
             break;
         case 'j':          
+            Player2.attack();
+            keys.j.pressed = true
+            break;
+        case 'k':
             const initialProjectilePosition = {
-                x: Player.posX,
-                y: Player.posY
+                x: Player2.position.x,
+                y: Player2.position.y
             };
             const projectileVelocity = {
                 x: 3 + speedX,
@@ -363,21 +291,6 @@ window.addEventListener('keydown', ({ key }) => {
                 position: initialProjectilePosition,
                 velocity: projectileVelocity
             }));
-            Player.attack();
-            Player2.attack();
-            keys.j.pressed = true
-            break;
-        case 'k':
-            const judgementCutRange = 300;
-            const regularJudgementCut = new judgementCut({
-                position: {
-                    x: (Player.posX + Player.width) + judgementCutRange,
-                    y: canvas.height
-                },
-                duration: 1000
-            });
-            regularJudgementCut.draw();
-            Player.attack()
             keys.k.pressed = true
             break;
     }
@@ -388,6 +301,9 @@ window.addEventListener('keyup', ({ key }) => {
     switch (key) {
         case 'a':
             keys.a.pressed = false
+            break;
+        case 'p':
+            keys.p.pressed = false
             break;
         case 'd':
             keys.d.pressed = false
@@ -426,91 +342,6 @@ window.addEventListener('keyup', ({ key }) => {
 })
 
 
-// Utför rörelserna på karatärerna
-function executePlayerMoves(object) {
-    if(object == Player){
-        if (keys.s.pressed && object.posY + object.height <= canvas.height) {
-            object.posY += speedY
-        }
-        else if (keys.w.pressed && object.posY >= 0) {
-            object.posY -= speedY
-            keys.jumping.pressed = true
-        }
-        if (keys.a.pressed && object.posX >=0) {
-            object.posX -= speedX
-        }
-        else if (keys.d.pressed && object.posX + object.width <= canvas.width) {
-            object.posX += speedX
-        }
-        else {
-            object.posX += 0
-            object.posY += 0
-        }
-    }
-    else {
-        if (keys.ArrowDown.pressed && object.posY + object.height <= canvas.height) {
-            object.posY += speedY
-        }
-        else if (keys.ArrowUp.pressed && object.posY >= 0) {
-            object.posY -= speedY
-            keys.jumping.pressed = true
-        }
-        if (keys.ArrowLeft.pressed && object.posX >=0) {
-            object.posX -= speedX
-        }
-        else if (keys.ArrowRight.pressed && object.posX + object.width <= canvas.width) {
-            object.posX += speedX
-        }
-        else {
-            object.posX += 0
-            object.posY += 0
-        }
-    }
-}
-
-
-function drawPlayers(object) {
-    penn.fillStyle = object.color;
-    penn.fillRect(object.posX, object.posY, object.width, object.height);
-}
-
-
-function animateGravity(object) {
-    object.yvelocity += gravity.y;
-    object.xvelocity += gravity.x;
-    object.posX += object.xvelocity;
-    object.posY += object.yvelocity;
-    const g = ground - object.height;
-    if(object.posY >= g) {  
-        object.posY = g - (object.posY - g); 
-        object.yvelocity = -Math.abs(object.yvelocity) * bounce;
-    }
-}
-
-
-function collisionControl(object) {
-    const isCollidingWithRightSide = (object.posX + object.width >= canvas.width);
-    const isCollidingWithLeftSide = (object.posX <= 0);
-    const isCollidingWithFloor = (object.posY + object.height >= canvas.height);
-    const isCollidingWithRoof = (object.posY <= 0);
-
-    // Denna if-sats kontrollerar om rutan nått botten och vänder i så fall på
-    // hastigheten, i y-led, så den riktas uppåt.
-    if (isCollidingWithFloor) {
-        object.posY = canvas.height - object.height;
-    }
-    if (isCollidingWithRightSide) {
-        object.posX = canvas.width - object.width;
-    }
-    if (isCollidingWithLeftSide) {
-        object.posX = 0;
-    }
-    if (isCollidingWithRoof) {
-        object.posY = 0 + object.height;
-    }
-}
-
-
 function clearCanvas() {
     penn.fillStyle = "rgba(255, 255, 255, 0.8)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
@@ -524,15 +355,21 @@ function mainLoop() {
     const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
     clock.innerHTML = `${secondsLeft}`;
 
-    if (isAlive(Player) && isAlive(Enemy) && secondsLeft > 0) {
+    if (isAlive(Player2) && isAlive(Enemy2) && secondsLeft > 0 && gamePaused === false) {
         window.requestAnimationFrame(mainLoop);
-        // executePlayerMoves(Player);
-        // executePlayerMoves(Enemy);
         clearCanvas();
         background.update();
-        // mirageSlash.update();
-        // Enemy2.update();
+        Enemy2.update();
         Player2.update();
+        projectileArray.forEach((projectile, index) => {
+            if (projectile.position.x + projectile.width >= canvas.width || projectile.position.x <= 0) {
+                setTimeout(() => {
+                    projectileArray.splice(index, 1)
+                }, 0)
+            } else {
+                projectile.update()
+            }
+        });
 
         Player2.velocity.x = 0
         Enemy2.velocity.x = 0
@@ -554,54 +391,62 @@ function mainLoop() {
             Player2.switchSprites('fall')
         }
 
-        
+        // Enemy movement
         if (keys.ArrowLeft.pressed) {
             Enemy2.velocity.x = -3
+            Enemy2.switchSprites('run')
         } else if (keys.ArrowRight.pressed){
             Enemy2.velocity.x = 3
+            Enemy2.switchSprites('run')
+        } else {
+            Enemy2.switchSprites('idle')
         }
 
+        if (Enemy2.velocity.y < 0) {
+            Enemy2.switchSprites('jump')
+        } else if (Enemy2.velocity.y > 0) {
+            Enemy2.switchSprites('fall')
+        }
 
+        // Player tar skada
         if (
             rectangularCollision({
                 rectangle1:Enemy2,
                 rectangle2:Player2
-            }) && Enemy2.isAttacking
+            }) && 
+            Enemy2.isAttacking && Enemy2.framesCurrent === 6
         ) {
             Enemy2.isAttacking = false
             Player2.health -= 5; 
             document.querySelector('#playerHealth').style.width = Player2.health +'%';
             console.log('Player attack succesful')
         }
+
+        // Om Enemy missar sin attack
+        if (Enemy2.isAttacking && Enemy2.framesCurrent === 6) {
+            Enemy2.isAttacking = false
+        }
+
+        // Enemy tar skada
         if (
             rectangularCollision({
-                rectangle1:Player2,
-                rectangle2:Enemy2
+                rectangle1: Player2,
+                rectangle2: Enemy2
             }) && 
-            Player2.isAttacking
+            Player2.isAttacking && Player2.framesCurrent === 6
         ) {
             Player2.isAttacking = false
             Enemy2.health -= 5; 
             document.querySelector('#enemyHealth').style.width = Enemy2.health +'%';
             console.log('Enemy attack succesful')
         }
-        // drawPlayers(Player);
-        // drawPlayers(Enemy);
-        // drawPlayerModelLoop(VergilIdleAnimationLeft);
-        // drawPlayerModelLoop(VergilIdleAnimation);
-        // animateGravity(Player);
-        // animateGravity(Enemy);
-        // collisionControl(Player);
-        // collisionControl(Enemy);
-        // projectileArray.forEach((projectile, index) => {
-        //     if (projectile.position.x + projectile.width >= canvas.width) {
-        //         setTimeout(() => {
-        //             projectileArray.splice(index, 1)
-        //         }, 0)
-        //     } else {
-        //         projectile.update()
-        //     }
-        // }); 
+
+        // Om player missar sin attack
+        if (Player2.isAttacking && Player2.framesCurrent === 6) {
+            Player2.isAttacking = false
+        }
+
+        
     }
     if (Enemy2.health <= 0 || Player2.health <= 0) {
         // clearCanvas();

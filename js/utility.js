@@ -60,7 +60,6 @@ let Music = {
 }
 const VergilThemeMusic = new sound(Music.VergilThemeMusic.src);
 
-
 function isAlive(object) {
     if (object.health <= 0) {
         return false
@@ -70,13 +69,15 @@ function isAlive(object) {
     }
 }
 
-
-function isPaused() {
-    if (pauseBtn.clicked == true) {
-        return true;
+let gamePaused = false;
+function pauseGame() {
+    if (!gamePaused) {
+        gamePaused = true
+        return gamePaused
     }
     else {
-        return false;
+        gamePaused = false
+        return gamePaused
     }
 }
 
