@@ -122,6 +122,10 @@ const Player2 = new Fighter({
             imageSrc: 'Images/Vergil - attack1.png',
             framesMax: 10,
         },
+        attack2: {
+            imageSrc: 'Images/Vergil - Judgementcut.png',
+            framesMax: 7, 
+        },
     },
     attackBox: {
         offset: {
@@ -134,8 +138,6 @@ const Player2 = new Fighter({
 })
 
 let projectileArray = [];
-
-
 
 const keys = {
     a: { pressed:false},
@@ -201,20 +203,35 @@ window.addEventListener('keydown', ({ key }) => {
             keys.j.pressed = true
             break;
         case 'k':
-            const initialProjectilePosition = {
-                x: Player2.position.x,
-                y: Player2.position.y
-            };
-            const projectileVelocity = {
-                x: 3 + speedX,
-                y: 0
-            };
-            projectileArray.push(new projectile({
-                position: initialProjectilePosition,
-                velocity: projectileVelocity
-            }));
-            console.log(projectileArray);
+            // const initialProjectilePosition = {
+            //     x: Player2.position.x,
+            //     y: Player2.position.y
+            // };
+            // const projectileVelocity = {
+            //     x: 3 + speedX,
+            //     y: 0
+            // };
+            // projectileArray.push(new projectile({
+            //     position: initialProjectilePosition,
+            //     velocity: projectileVelocity
+            // }));
+            // console.log(projectileArray);
+            const Judgementcut = new Sprite({
+                position: {
+                    x:Player2.position.x,
+                    y:Player2.position.y
+                },
+                imageSrc: 'Images/Vergil - Judgementcut  - attackBox.png',
+                framesMax:6,
+                offset: {
+                    x:0,
+                    y:0
+                },
+            }) 
+            Judgementcut.update();
+            console.log(Judgementcut);
             Player2.attack();
+            Player2.switchSprites('attack2')
             keys.k.pressed = true
             break;
     }
