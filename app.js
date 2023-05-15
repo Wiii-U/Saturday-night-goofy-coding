@@ -49,7 +49,7 @@ const Enemy2 = new Fighter({
         y: 0
     },
     offset: {
-        x:0,
+        x:85,
         y:20
     },
     imageSrc: 'Images/VergilIdleAnimationLeft.png',
@@ -78,7 +78,7 @@ const Enemy2 = new Fighter({
     },
     attackBox: {
         offset: {
-            x:0,
+            x:-85,
             y:-5
         },
         width: 120,
@@ -96,7 +96,7 @@ const Player2 = new Fighter({
         y: 0
     },
     offset: {
-        x:0,
+        x:60,
         y:20
     },
     imageSrc: 'Images/VergilIdleAnimation.png',
@@ -125,7 +125,7 @@ const Player2 = new Fighter({
     },
     attackBox: {
         offset: {
-            x:72,
+            x:12,
             y:-5
         },
         width: 120,
@@ -135,59 +135,6 @@ const Player2 = new Fighter({
 
 let projectileArray = [];
 
-
-
-class judgementCut{
-    constructor({position, duration}) {
-        const image = new Image();
-        image.src = 'Images/Mirageslash.jpg';
-
-        if (image.complete) {
-            this.setImageDimensions(image, position);
-        } else {
-            image.onload = () => {
-                this.setImageDimensions(image, position);
-            }
-        }
-
-        this.duration = duration;
-    }
-
-    setImageDimensions(image, position) { 
-        const scale = 3;
-        this.image = image;
-        this.width = image.width * scale;
-        this.height = image.height * scale;
-        this.position = position;
-    }
-
-    draw() {
-        if (this.image) {
-            penn.drawImage(
-                this.image,
-                this.position.x,
-                this.position.y - this.height,
-                this.width,
-                this.height
-            );
-
-            // Set a timeout to clear the image after the specified duration
-            setTimeout(() => {
-                this.clear();
-            }, this.duration);
-        }
-    }
-
-    clear() {
-        // Clear the area where the image was drawn
-        penn.clearRect(
-            this.position.x,
-            this.position.y,
-            this.width,
-            this.height
-        );
-    }
-}
 
 
 const keys = {
@@ -422,19 +369,17 @@ function mainLoop() {
         if (Player2.isAttacking && Player2.framesCurrent === 6) {
             Player2.isAttacking = false
         }
-
         
     }
     if (Enemy2.health <= 0 || Player2.health <= 0) {
-        // clearCanvas();
+        
         VergilThemeMusic.stop();
         determineWinner({
             player: Player2, 
             enemy: Enemy2
         })
         setTimeout(() => {
-            penn.fillStyle = 'white';
-            penn.fillRect(0, 0, canvas.width, canvas.height)
+            clearCanvas();
             penn.font = "40px Cormorant Garamond, serif";
             penn.fillStyle = 'black';
             penn.fillText('Press ENTER To Reset', 0, ground);
@@ -453,8 +398,7 @@ function mainLoop() {
             enemy: Enemy2
         })
         setTimeout(() => {
-            penn.fillStyle = 'white';
-            penn.fillRect(0, 0, canvas.width, canvas.height)
+            clearCanvas();
             penn.font = "40px Cormorant Garamond, serif";
             penn.fillStyle = 'black';
             penn.fillText('Press ENTER To Reset', 0, ground);

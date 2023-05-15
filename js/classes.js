@@ -80,7 +80,7 @@ class Fighter extends Sprite {
         this.health = 100
         this.framesCurrent = 0
         this.framesElapsed = 0
-        this.framesHold = 18
+        this.framesHold = 10
         this.sprites = sprites
 
         for (const sprite in this.sprites) {
@@ -97,13 +97,16 @@ class Fighter extends Sprite {
         this.attackBox.position.x = this.position.x + this.attackBox.offset.x
         this.attackBox.position.y = this.position.y + this.attackBox.offset.y
 
-        // Ritar ut attackbox
-        penn.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+        // Ritar ut attackbox.
+        // penn.fillRect(this.attackBox.position.x, this.attackBox.position.y, this.attackBox.width, this.attackBox.height)
+
+        // Ritar ut spelarens hitbox.
+        // penn.fillRect(this.position.x, this.position.y, this.width, this.height);
 
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
 
-        // gravity
+        // gravity implementation
         if (this.position.y + this.height + this.velocity.y >= canvas.height - 170) {
             this.velocity.y = 0
             this.position.y = 649
