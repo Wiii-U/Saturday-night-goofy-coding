@@ -75,6 +75,10 @@ const Enemy2 = new Fighter({
             imageSrc: 'Images/Vergil - Impostor - attack1.png',
             framesMax: 10,
         },
+        attack2: {
+            imageSrc: 'Images/Vergil - Judgementcut.png',
+            framesMax: 7, 
+        }
     },
     attackBox: {
         offset: {
@@ -125,7 +129,7 @@ const Player2 = new Fighter({
         attack2: {
             imageSrc: 'Images/Vergil - Judgementcut.png',
             framesMax: 7, 
-        },
+        }
     },
     attackBox: {
         offset: {
@@ -154,6 +158,7 @@ const keys = {
     k: {pressed:false},
     jumping: {pressed:false},
     p: {pressed:false},
+    v: {pressed:false},
 }
 
 
@@ -194,6 +199,26 @@ window.addEventListener('keydown', ({ key }) => {
             Enemy2.attack();
             Enemy2.switchSprites('attack1')
             break;
+        case 'v':
+            keys.v.pressed = true
+            var Judgementcut = new Sprite({
+                position: {
+                    x:Enemy2.position.x - 300,
+                    y:Enemy2.position.y
+                },
+                imageSrc: 'Images/Vergil - JudgementcutAttackbox.png',
+                scale: 3,
+                framesMax:6,
+                offset: {
+                    x:0,
+                    y:0
+                },
+            }) 
+            Enemy2.attack();
+            Enemy2.switchSprites('attack2')
+            Judgementcut.update();
+            console.log(Judgementcut);
+            break;
         case 'Enter':
             keys.enter.pressed = true
             break;
@@ -216,22 +241,24 @@ window.addEventListener('keydown', ({ key }) => {
             //     velocity: projectileVelocity
             // }));
             // console.log(projectileArray);
-            const Judgementcut = new Sprite({
+            var Judgementcut = new Sprite({
                 position: {
-                    x:Player2.position.x,
+                    x:Player2.position.x + 300,
                     y:Player2.position.y
                 },
-                imageSrc: 'Images/Vergil - Judgementcut  - attackBox.png',
+                imageSrc: 'Images/Vergil - JudgementcutAttackbox.png',
+                scale: 3,
                 framesMax:6,
                 offset: {
                     x:0,
                     y:0
                 },
             }) 
-            Judgementcut.update();
-            console.log(Judgementcut);
+            
             Player2.attack();
             Player2.switchSprites('attack2')
+            Judgementcut.update();
+            console.log(Judgementcut.image);
             keys.k.pressed = true
             break;
     }
@@ -260,6 +287,9 @@ window.addEventListener('keyup', ({ key }) => {
             break;
         case 'k':
             keys.k.pressed = false
+            break;
+        case 'v':
+            keys.v.pressed = false
             break;
         case 'ArrowUp':
             keys.ArrowUp.pressed = false
@@ -302,15 +332,15 @@ function mainLoop() {
         background.update();
         Enemy2.update();
         Player2.update();
-        projectileArray.forEach((projectile, index) => {
-            if (projectile.position.x + projectile.width >= canvas.width || projectile.position.x <= 0) {
-                setTimeout(() => {
-                    projectileArray.splice(index, 1)
-                }, 0)
-            } else {
-                projectile.update()
-            }
-        });
+        // projectileArray.forEach((projectile, index) => {
+        //     if (projectile.position.x + projectile.width >= canvas.width || projectile.position.x <= 0) {
+        //         setTimeout(() => {
+        //             projectileArray.splice(index, 1)
+        //         }, 0)
+        //     } else {
+        //         projectile.update()
+        //     }
+        // });
 
         Player2.velocity.x = 0
         Enemy2.velocity.x = 0

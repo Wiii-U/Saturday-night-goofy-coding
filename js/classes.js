@@ -9,7 +9,7 @@ class Sprite{
         this.framesMax = framesMax
         this.framesCurrent = 0
         this.framesElapsed = 0
-        this.framesHold = 10
+        this.framesHold = 30
         this.offset = offset
     }
 
@@ -41,28 +41,14 @@ class Sprite{
 
     update() {
         this.draw()
-        this.framesElapsed++
-
-        if (this.framesElapsed % this.framesHold === 0) {
-            if (this.framesCurrent < this.framesMax -  1) {
-                this.framesCurrent++
-            } else {
-                this.framesCurrent = 0
-            }
-        }
+        this.animateFrames()
     }
 }
 
 
 class Fighter extends Sprite {
-    constructor({position, velocity, color = 'red', imageSrc, scale = 1, framesMax = 1, offset = {x: 0, y:0}, sprites, attackBox = { offset: {}, width: undefined, height: undefined }}) {
-        super({
-            position,
-            imageSrc,
-            scale,
-            framesMax,
-            offset,
-        })
+    constructor({ position, velocity, color = 'red', imageSrc, scale = 1, framesMax = 1, offset = {x: 0, y:0}, sprites, attackBox = { offset: {}, width: undefined, height: undefined }}) {
+        super({ position, imageSrc, scale, framesMax, offset })
         this.velocity = velocity
         this.width = 50
         this.height = 150
@@ -123,10 +109,10 @@ class Fighter extends Sprite {
     switchSprites(sprite) {
         if (this.image === this.sprites.attack1.image && 
             this.framesCurrent < this.sprites.attack1.framesMax - 1
-            ) {return}
-        else if (this.image === this.sprites.attack2.image && 
+            ) return
+        if (this.image === this.sprites.attack2.image && 
             this.framesCurrent < this.sprites.attack2.framesMax - 1
-            ) {return}
+            ) return
 
         switch(sprite) {
             case 'idle':
