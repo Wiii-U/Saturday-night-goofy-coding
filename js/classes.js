@@ -15,8 +15,11 @@ class Sprite{
 
     draw() {
         if (this.image) {
-            penn.fillStyle = 'red';
-            penn.fillRect(this.position.x, this.position.y, this.width, this.height)
+
+            // Ritar ut spritens rektangel
+            // penn.fillStyle = 'green'
+            // penn.fillRect(this.position.x, this.position.y, this.width, this.height)
+
             penn.drawImage(
                 this.image,
                 this.framesCurrent * (this.image.width / this.framesMax),

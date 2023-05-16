@@ -1,15 +1,15 @@
 function determineWinner({player, enemy}) {
     if (player.health === enemy.health || enemy.health > 0 && player.health > 0) {
         penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'white';
+        penn.fillStyle = 'black';
         penn.fillText('Tie', canvas.mid_width, canvas.mid_height);
     } else if (player.health > enemy.health && enemy.health <= 0) {
         penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'white';
+        penn.fillStyle = 'black';
         penn.fillText('Player wins', canvas.mid_width - 80, canvas.mid_height);
     } else if (player.health < enemy.health && player.health <= 0) {
         penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'white';
+        penn.fillStyle = 'black';
         penn.fillText('Enemy wins', canvas.mid_width - 80, canvas.mid_height);
     }
 }
@@ -73,11 +73,11 @@ let gamePaused = false;
 function pauseGame() {
     if (!gamePaused) {
         gamePaused = true
-        return gamePaused
+        return
     }
     else {
         gamePaused = false
-        return gamePaused
+        return
     }
 }
 

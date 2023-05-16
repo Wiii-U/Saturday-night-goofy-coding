@@ -11,10 +11,7 @@ canvas.mid_height = canvas.height / 2;
 canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
 const ground = canvas.height;
-const bounce = 0;
-const gravity =  0.15
-penn.fillStyle = "white";
-penn.fillRect(0, 0, canvas.width, canvas.height);
+const gravity =  0.15;
 
 
 // Intervall av.
@@ -53,10 +50,10 @@ const Judgementcut = new Sprite({
         x:0,
         y:0
     },
-    framesHold: 3,
+    framesHold: 5,
 })  
 
-const Enemy2 = new Fighter({
+const player2 = new Fighter({
     position: {
         x: canvas.width - 350,
         y: 100
@@ -107,7 +104,7 @@ const Enemy2 = new Fighter({
     }
 })
 
-const Player2 = new Fighter({
+const player = new Fighter({
     position: {
         x: 350,
         y: 100,
@@ -161,9 +158,9 @@ const Player2 = new Fighter({
 let projectileArray = [];
 
 const keys = {
-    a: { pressed:false},
-    ArrowUp: { pressed:false},
-    ArrowDown: { pressed:false},
+    a: {pressed:false},
+    ArrowUp: {pressed:false},
+    ArrowDown: {pressed:false},
     ArrowLeft: {pressed:false},
     ArrowRight: {pressed:false},
     d: {pressed:false},
@@ -178,19 +175,25 @@ const keys = {
     v: {pressed:false},
 }
 
-
 window.addEventListener('keydown', ({ key }) => {
+    if (keys.enter.pressed && secondsLeft <= 0) {
+        reset();
+    }
+    if (keys.enter.pressed && !isAlive(player) || keys.enter.pressed && !isAlive(player2)) {
+        reset();
+    }
+
     switch (key) {
         case 'a':
             keys.a.pressed = true
             break;
         case 'p':
-            keys.p.pressed = true
             pauseGame();
+            keys.p.pressed = true
             break;
         case 'ArrowUp':
             keys.ArrowUp.pressed = true
-            Enemy2.velocity.y = -10
+            player2.velocity.y = -10
             break;
         case 'ArrowDown':
             keys.ArrowDown.pressed = true
@@ -206,35 +209,34 @@ window.addEventListener('keydown', ({ key }) => {
             break;
         case 'w':
             keys.w.pressed = true
-            Player2.velocity.y = -10
+            player.velocity.y = -10
             break;
         case 's':
             keys.s.pressed = true
             break;
         case ' ':
+            player2.attack();
+            player2.switchSprites('attack1')
             keys.space.pressed = true
-            Enemy2.attack();
-            Enemy2.switchSprites('attack1')
             break;
         case 'v':
+            player2.attack();
+            player2.switchSprites('attack2')
             keys.v.pressed = true
-            Enemy2.attack();
-            Enemy2.switchSprites('attack2')
-            Judgementcut.update();
-            console.log(Judgementcut);
             break;
         case 'Enter':
             keys.enter.pressed = true
+            console.log('Enter key pressed');
             break;
         case 'j':          
-            Player2.attack();
-            Player2.switchSprites('attack1')
+            player.attack();
+            player.switchSprites('attack1')
             keys.j.pressed = true
             break;
         case 'k':
             // const initialProjectilePosition = {
-            //     x: Player2.position.x,
-            //     y: Player2.position.y
+            //     x: player.position.x,
+            //     y: player.position.y
             // };
             // const projectileVelocity = {
             //     x: 3 + speedX,
@@ -245,13 +247,12 @@ window.addEventListener('keydown', ({ key }) => {
             //     velocity: projectileVelocity
             // }));
             // console.log(projectileArray);
-            Player2.attack();
-            Player2.switchSprites('attack2');
+            player.attack();
+            player.switchSprites('attack2');
             keys.k.pressed = true
             break;
     }
 })
-
 
 window.addEventListener('keyup', ({ key }) => {
     switch (key) {
@@ -307,19 +308,18 @@ function clearCanvas() {
 }
 
 
-// Det här är huvudfunktionen som kör funktioner för att animeringen ska fungera.
-// mainLoop har alla funktioner i sig, för att effektivisera strukturen och funktionen av de tillsammans.
+// Det här är huvudfunktionen, mainLoop, som har alla funktioner i sig.
 function mainLoop() {
     const elapsedTime = Date.now() - startTime;
     const secondsLeft = startingSeconds - Math.floor(elapsedTime / 1000);
     clock.innerHTML = `${secondsLeft}`;
 
-    if (isAlive(Player2) && isAlive(Enemy2) && secondsLeft > 0 && gamePaused === false) {
+    if (isAlive(player) && isAlive(player2) && secondsLeft > 0 && gamePaused === false) {
         window.requestAnimationFrame(mainLoop);
         clearCanvas();
         background.update();
-        Enemy2.update();
-        Player2.update();
+        player2.update();
+        player.update();
         // projectileArray.forEach((projectile, index) => {
         //     if (projectile.position.x + projectile.width >= canvas.width || projectile.position.x <= 0) {
         //         setTimeout(() => {
@@ -330,125 +330,153 @@ function mainLoop() {
         //     }
         // });
 
-        Player2.velocity.x = 0
-        Enemy2.velocity.x = 0
+        player.velocity.x = 0
+        player2.velocity.x = 0
 
         // Player movement
         if(keys.a.pressed) {
-            Player2.velocity.x = -3
-            Player2.switchSprites('run')
+            player.velocity.x = -6
+            player.switchSprites('run')
         } else if (keys.d.pressed){
-            Player2.velocity.x = 3
-            Player2.switchSprites('run')
+            player.velocity.x = 6
+            player.switchSprites('run')
         } else {
-            Player2.switchSprites('idle')
+            player.switchSprites('idle')
         }
 
-        if (Player2.velocity.y < 0) {
-            Player2.switchSprites('jump')
-        } else if (Player2.velocity.y > 0) {
-            Player2.switchSprites('fall')
+        if (player.velocity.y < 0) {
+            player.switchSprites('jump')
+        } else if (player.velocity.y > 0) {
+            player.switchSprites('fall')
         }
 
         if (keys.k.pressed) {
-            Judgementcut.position.x = Player2.position.x + 400
-            Judgementcut.position.y = Player2.position.y + -100
+            Judgementcut.position.x = player.position.x + 400
+            Judgementcut.position.y = player.position.y - 100
             Judgementcut.update()
-            console.log(Judgementcut)
         }
 
 
         // Enemy movement
         if (keys.ArrowLeft.pressed) {
-            Enemy2.velocity.x = -3
-            Enemy2.switchSprites('run')
+            player2.velocity.x = -3
+            player2.switchSprites('run')
         } else if (keys.ArrowRight.pressed){
-            Enemy2.velocity.x = 3
-            Enemy2.switchSprites('run')
+            player2.velocity.x = 3
+            player2.switchSprites('run')
         } else {
-            Enemy2.switchSprites('idle')
+            player2.switchSprites('idle')
         }
 
-        if (Enemy2.velocity.y < 0) {
-            Enemy2.switchSprites('jump')
-        } else if (Enemy2.velocity.y > 0) {
-            Enemy2.switchSprites('fall')
+        if (player2.velocity.y < 0) {
+            player2.switchSprites('jump')
+        } else if (player2.velocity.y > 0) {
+            player2.switchSprites('fall')
+        }
+
+        if (keys.v.pressed) {
+            Judgementcut.position.x = player2.position.x - 400
+            Judgementcut.position.y = player2.position.y - 100
+            Judgementcut.update()
+        }
+
+
+        if ( (Judgementcut.position.x + Judgementcut.width >= 
+            player2.position.x && Judgementcut.position.x <= 
+            player2.position.x + player2.width &&
+            Judgementcut.position.y + Judgementcut.height >= 
+            player2.position.y && Judgementcut.position.y <= 
+            player2.position.y + player2.height) 
+            && player.isAttacking && player.image == player.sprites.attack2.image
+        ) {
+            player.isAttacking = false
+            player2.health -= 10; 
+            document.querySelector('#enemyHealth').style.width = player2.health +'%';
+            console.log('Player attack succesful')
+        }
+
+        if ( (Judgementcut.position.x + Judgementcut.width >= 
+            player.position.x && Judgementcut.position.x <= 
+            player.position.x + player.width &&
+            Judgementcut.position.y + Judgementcut.height >= 
+            player.position.y && Judgementcut.position.y <= 
+            player.position.y + player.height) 
+            && player2.isAttacking && player2.image == player2.sprites.attack2.image
+        ) {
+            player2.isAttacking = false
+            player.health -= 10; 
+            document.querySelector('#playerHealth').style.width = player.health +'%';
+            console.log('Player attack succesful')
         }
 
         // Player tar skada
         if (
             rectangularCollision({
-                rectangle1:Enemy2,
-                rectangle2:Player2
+                rectangle1:player2,
+                rectangle2:player
             }) && 
-            Enemy2.isAttacking && Enemy2.framesCurrent === 6
+            player2.isAttacking && player2.framesCurrent === 6 || player2.framesCurrent === 8
         ) {
-            Enemy2.isAttacking = false
-            Player2.health -= 5; 
-            document.querySelector('#playerHealth').style.width = Player2.health +'%';
+            player2.isAttacking = false
+            player.health -= 5; 
+            document.querySelector('#playerHealth').style.width = player.health +'%';
             console.log('Player attack succesful')
-        }
-
-        // Om Enemy missar sin attack
-        if (Enemy2.isAttacking && Enemy2.framesCurrent === 6) {
-            Enemy2.isAttacking = false
-        }
+        }   
 
         // Enemy tar skada
         if (
             rectangularCollision({
-                rectangle1: Player2,
-                rectangle2: Enemy2
+                rectangle1: player,
+                rectangle2: player2
             }) && 
-            Player2.isAttacking && Player2.framesCurrent === 6
+            player.isAttacking && player.framesCurrent === 6 
         ) {
-            Player2.isAttacking = false
-            Enemy2.health -= 5; 
-            document.querySelector('#enemyHealth').style.width = Enemy2.health +'%';
+            player.isAttacking = false
+            player2.health -= 5; 
+            document.querySelector('#enemyHealth').style.width = player2.health +'%';
             console.log('Enemy attack succesful')
         }
 
+        // Om Enemy missar sin attack
+        if (player2.isAttacking && player2.framesCurrent === 6) {
+            player2.isAttacking = false
+        }      
+
         // Om player missar sin attack
-        if (Player2.isAttacking && Player2.framesCurrent === 6) {
-            Player2.isAttacking = false
+        if (player.isAttacking && player.framesCurrent === 6) {
+            player.isAttacking = false
         }
         
     }
-    if (Enemy2.health <= 0 || Player2.health <= 0) {
-        
+    if (player2.health <= 0 || player.health <= 0) {
+        clearCanvas();
         VergilThemeMusic.stop();
         determineWinner({
-            player: Player2, 
-            enemy: Enemy2
+            player: player, 
+            enemy: player2
         })
         setTimeout(() => {
             clearCanvas();
             penn.font = "40px Cormorant Garamond, serif";
             penn.fillStyle = 'black';
             penn.fillText('Press ENTER To Reset', 0, ground);
-        }, 500);
-        if (keys.enter.pressed) {
-            reset();
-        }
-        
+        }, 1000);
     }
     if (secondsLeft <= 0) {
         // --- Stoppa huvudloopen när nedräkningen når 0 --- //
-        // clearCanvas();
+        clearCanvas();
         VergilThemeMusic.stop();
         determineWinner({
-            player: Player2,
-            enemy: Enemy2
+            player: player,
+            enemy: player2
         })
         setTimeout(() => {
             clearCanvas();
             penn.font = "40px Cormorant Garamond, serif";
             penn.fillStyle = 'black';
-            penn.fillText('Press ENTER To Reset', 0, ground);
-        }, 500);
-        if (keys.enter.pressed) {
-            reset();
-        }
+            penn.fillText('Press ENTER To Reset', 0, ground);        
+            
+        }, 1000);
     }
 }
 
@@ -458,8 +486,5 @@ gameStartBtn.onclick = function (e) {
 
     gameStartBtn.style.display = 'none';
     // VergilThemeMusic.play();
+    startCountdown();
 }
-
-
-// gameStartBtn är knappen som kör huvudfunktionen mainloop(), om den klickas.
-gameStartBtn.addEventListener("click", startCountdown);
