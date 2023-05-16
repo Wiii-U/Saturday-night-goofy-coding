@@ -39,6 +39,23 @@ const mirageSlash = new Sprite({
     framesMax:10,
 })
 
+const Judgementcut = new Sprite({
+    position: {
+        x:0,
+        y:0
+    },
+    width:300,
+    height:280,
+    imageSrc: 'Images/Vergil - JudgementcutAttackbox.png',
+    scale: 3,
+    framesMax:6,
+    offset: {
+        x:0,
+        y:0
+    },
+    framesHold: 3,
+})  
+
 const Enemy2 = new Fighter({
     position: {
         x: canvas.width - 350,
@@ -201,19 +218,6 @@ window.addEventListener('keydown', ({ key }) => {
             break;
         case 'v':
             keys.v.pressed = true
-            var Judgementcut = new Sprite({
-                position: {
-                    x:Enemy2.position.x - 300,
-                    y:Enemy2.position.y
-                },
-                imageSrc: 'Images/Vergil - JudgementcutAttackbox.png',
-                scale: 3,
-                framesMax:6,
-                offset: {
-                    x:0,
-                    y:0
-                },
-            }) 
             Enemy2.attack();
             Enemy2.switchSprites('attack2')
             Judgementcut.update();
@@ -241,24 +245,8 @@ window.addEventListener('keydown', ({ key }) => {
             //     velocity: projectileVelocity
             // }));
             // console.log(projectileArray);
-            var Judgementcut = new Sprite({
-                position: {
-                    x:Player2.position.x + 300,
-                    y:Player2.position.y
-                },
-                imageSrc: 'Images/Vergil - JudgementcutAttackbox.png',
-                scale: 3,
-                framesMax:6,
-                offset: {
-                    x:0,
-                    y:0
-                },
-            }) 
-            
             Player2.attack();
-            Player2.switchSprites('attack2')
-            Judgementcut.update();
-            console.log(Judgementcut.image);
+            Player2.switchSprites('attack2');
             keys.k.pressed = true
             break;
     }
@@ -361,6 +349,14 @@ function mainLoop() {
         } else if (Player2.velocity.y > 0) {
             Player2.switchSprites('fall')
         }
+
+        if (keys.k.pressed) {
+            Judgementcut.position.x = Player2.position.x + 400
+            Judgementcut.position.y = Player2.position.y + -100
+            Judgementcut.update()
+            console.log(Judgementcut)
+        }
+
 
         // Enemy movement
         if (keys.ArrowLeft.pressed) {

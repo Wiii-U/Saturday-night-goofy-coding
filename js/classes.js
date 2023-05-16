@@ -1,30 +1,34 @@
 class Sprite{
-    constructor({ position, imageSrc, scale = 1, framesMax = 1, offset = {x: 0, y:0} }) {
+    constructor({ position, imageSrc, width = 50, height = 150,scale = 1, framesMax = 1, framesHold = 10, offset = {x: 0, y:0} }) {
         this.position = position
-        this.width = 50
-        this.height = 150
+        this.width = width
+        this.height = height
         this.image = new Image()
         this.image.src = imageSrc
         this.scale = scale
         this.framesMax = framesMax
         this.framesCurrent = 0
         this.framesElapsed = 0
-        this.framesHold = 30
+        this.framesHold = framesHold
         this.offset = offset
     }
 
     draw() {
-        penn.drawImage(
-            this.image,
-            this.framesCurrent * (this.image.width / this.framesMax),
-            0,
-            this.image.width / this.framesMax,
-            this.image.height,
-            this.position.x - this.offset.x,
-            this.position.y - this.offset.y,
-            (this.image.width / this.framesMax) * this.scale,
-            this.image.height * this.scale
-        )
+        if (this.image) {
+            penn.fillStyle = 'red';
+            penn.fillRect(this.position.x, this.position.y, this.width, this.height)
+            penn.drawImage(
+                this.image,
+                this.framesCurrent * (this.image.width / this.framesMax),
+                0,
+                this.image.width / this.framesMax,
+                this.image.height,
+                this.position.x - this.offset.x,
+                this.position.y - this.offset.y,
+                (this.image.width / this.framesMax) * this.scale,
+                this.image.height * this.scale
+            )
+        }
     }
 
     animateFrames() {
@@ -47,8 +51,8 @@ class Sprite{
 
 
 class Fighter extends Sprite {
-    constructor({ position, velocity, color = 'red', imageSrc, scale = 1, framesMax = 1, offset = {x: 0, y:0}, sprites, attackBox = { offset: {}, width: undefined, height: undefined }}) {
-        super({ position, imageSrc, scale, framesMax, offset })
+    constructor({ position, velocity, color = 'red', imageSrc, scale = 1, framesMax = 1, framesHold = 10, offset = {x: 0, y:0}, sprites, attackBox = { offset: {}, width: undefined, height: undefined }}) {
+        super({ position, imageSrc, scale, framesMax, framesHold, offset })
         this.velocity = velocity
         this.width = 50
         this.height = 150
@@ -66,7 +70,7 @@ class Fighter extends Sprite {
         this.health = 100
         this.framesCurrent = 0
         this.framesElapsed = 0
-        this.framesHold = 10
+        this.framesHold = framesHold
         this.sprites = sprites
 
         for (const sprite in this.sprites) {
