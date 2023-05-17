@@ -11,12 +11,12 @@ canvas.mid_height = canvas.height / 2;
 canvas.mid_width = canvas.width / 2;
 const ceiling = 0;
 const ground = canvas.height;
-const gravity =  0.15;
+const gravity =  0.4;
 
 
 // Intervall av.
-const speedX = 5; // Horizontal speed.
-const speedY = 7; // Vertical speed.
+const speedX = 10; // Horizontal speed.
+const speedY = 10; // Vertical speed.
 
 const background =  new Sprite({
     position: {
@@ -31,9 +31,16 @@ const mirageSlash = new Sprite({
         x:0,
         y:0
     },
+    width:300,
+    height:280,
     imageSrc: 'Images/Mirageslash.png',
-    scale:1,
+    scale: 2,
     framesMax:10,
+    offset: {
+        x:0,
+        y:0
+    },
+    framesHold: 10,
 })
 
 const Judgementcut = new Sprite({
@@ -50,7 +57,7 @@ const Judgementcut = new Sprite({
         x:0,
         y:0
     },
-    framesHold: 5,
+    framesHold: 3,
 })  
 
 const player2 = new Fighter({
@@ -142,7 +149,8 @@ const player = new Fighter({
         },
         attack2: {
             imageSrc: 'Images/Vergil - Judgementcut.png',
-            framesMax: 7, 
+            framesMax: 7,
+            framesHold: 5 
         }
     },
     attackBox: {
@@ -173,16 +181,10 @@ const keys = {
     jumping: {pressed:false},
     p: {pressed:false},
     v: {pressed:false},
+    l: {pressed:false},
 }
 
 window.addEventListener('keydown', ({ key }) => {
-    if (keys.enter.pressed && secondsLeft <= 0) {
-        reset();
-    }
-    if (keys.enter.pressed && !isAlive(player) || keys.enter.pressed && !isAlive(player2)) {
-        reset();
-    }
-
     switch (key) {
         case 'a':
             keys.a.pressed = true
@@ -234,6 +236,11 @@ window.addEventListener('keydown', ({ key }) => {
             keys.j.pressed = true
             break;
         case 'k':
+            player.attack();
+            player.switchSprites('attack2');
+            keys.k.pressed = true
+            break;
+        case 'l':
             // const initialProjectilePosition = {
             //     x: player.position.x,
             //     y: player.position.y
@@ -247,9 +254,7 @@ window.addEventListener('keydown', ({ key }) => {
             //     velocity: projectileVelocity
             // }));
             // console.log(projectileArray);
-            player.attack();
-            player.switchSprites('attack2');
-            keys.k.pressed = true
+            keys.l.pressed = true
             break;
     }
 })
@@ -275,10 +280,14 @@ window.addEventListener('keyup', ({ key }) => {
             keys.j.pressed = false
             break;
         case 'k':
-            keys.k.pressed = false
+            setTimeout(() => {
+                keys.k.pressed = false
+            }, 500);
             break;
         case 'v':
-            keys.v.pressed = false
+            setTimeout(() => {
+                keys.v.pressed = false
+            }, 500);
             break;
         case 'ArrowUp':
             keys.ArrowUp.pressed = false
@@ -298,12 +307,15 @@ window.addEventListener('keyup', ({ key }) => {
         case 'Enter':
             keys.enter.pressed = false
             break;
+        case 'l':
+            keys.l.pressed = false
+            break;
     }
 })
 
 
 function clearCanvas() {
-    penn.fillStyle = "rgba(255, 255, 255, 0.8)";
+    penn.fillStyle = "rgba(255, 255, 255, 0.1)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -329,16 +341,15 @@ function mainLoop() {
         //         projectile.update()
         //     }
         // });
-
         player.velocity.x = 0
         player2.velocity.x = 0
 
         // Player movement
         if(keys.a.pressed) {
-            player.velocity.x = -6
+            player.velocity.x = -8
             player.switchSprites('run')
         } else if (keys.d.pressed){
-            player.velocity.x = 6
+            player.velocity.x = 8
             player.switchSprites('run')
         } else {
             player.switchSprites('idle')
@@ -359,10 +370,10 @@ function mainLoop() {
 
         // Enemy movement
         if (keys.ArrowLeft.pressed) {
-            player2.velocity.x = -3
+            player2.velocity.x = -8
             player2.switchSprites('run')
         } else if (keys.ArrowRight.pressed){
-            player2.velocity.x = 3
+            player2.velocity.x = 8
             player2.switchSprites('run')
         } else {
             player2.switchSprites('idle')
@@ -392,7 +403,6 @@ function mainLoop() {
             player.isAttacking = false
             player2.health -= 10; 
             document.querySelector('#enemyHealth').style.width = player2.health +'%';
-            console.log('Player attack succesful')
         }
 
         if ( (Judgementcut.position.x + Judgementcut.width >= 
@@ -406,7 +416,6 @@ function mainLoop() {
             player2.isAttacking = false
             player.health -= 10; 
             document.querySelector('#playerHealth').style.width = player.health +'%';
-            console.log('Player attack succesful')
         }
 
         // Player tar skada
@@ -420,7 +429,6 @@ function mainLoop() {
             player2.isAttacking = false
             player.health -= 5; 
             document.querySelector('#playerHealth').style.width = player.health +'%';
-            console.log('Player attack succesful')
         }   
 
         // Enemy tar skada
@@ -429,12 +437,11 @@ function mainLoop() {
                 rectangle1: player,
                 rectangle2: player2
             }) && 
-            player.isAttacking && player.framesCurrent === 6 
+            player.isAttacking && player.framesCurrent === 6 || player.framesCurrent === 8
         ) {
             player.isAttacking = false
             player2.health -= 5; 
             document.querySelector('#enemyHealth').style.width = player2.health +'%';
-            console.log('Enemy attack succesful')
         }
 
         // Om Enemy missar sin attack

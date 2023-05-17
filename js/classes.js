@@ -1,5 +1,5 @@
 class Sprite{
-    constructor({ position, imageSrc, width = 50, height = 150,scale = 1, framesMax = 1, framesHold = 10, offset = {x: 0, y:0} }) {
+    constructor({ position, imageSrc, width = 50, height = 150, scale = 1, framesMax = 1, framesHold = 10, offset = {x: 0, y:0} }) {
         this.position = position
         this.width = width
         this.height = height
@@ -106,6 +106,14 @@ class Fighter extends Sprite {
         }
         else {
             this.velocity.y += gravity
+        }
+
+        if (this.position.x <= 0) {
+            this.position.x = 0
+            this.velocity.x = 0
+        } else if (this.position.x + this.width >= canvas.width) {
+            this.velocity.x = 0
+            this.position.x = canvas.width - this.width
         }
     }
 
