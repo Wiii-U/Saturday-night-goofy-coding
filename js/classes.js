@@ -175,32 +175,3 @@ class Fighter extends Sprite {
         }
     }
 }
-
-
-class projectile{
-    constructor({position, velocity}) {
-        this.position = position
-        this.velocity = velocity
-        this.width = 100
-        this.height = 167
-        const image = new Image()
-        image.src = 'Images/Mirageslash.png'
-        image.onload = () => {
-            const scale = 1
-            this.image = image
-            this.width = image.width * scale
-            this.height = image.height * scale
-        }
-    }
-
-    draw() {
-        penn.fillStyle = 'green';
-        penn.fillRect(this.position.x, this.position.y, this.width, this.height)
-    }
-
-    update() {
-        this.draw()
-        this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
-    }
-}

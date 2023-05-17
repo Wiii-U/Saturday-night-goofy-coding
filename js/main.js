@@ -26,23 +26,6 @@ const background =  new Sprite({
     imageSrc:'Images/backgroundNight.png',
 })
 
-const mirageSlash = new Sprite({
-    position: {
-        x:0,
-        y:0
-    },
-    width:300,
-    height:280,
-    imageSrc: 'Images/Mirageslash.png',
-    scale: 2,
-    framesMax:10,
-    offset: {
-        x:0,
-        y:0
-    },
-    framesHold: 10,
-})
-
 const Judgementcut = new Sprite({
     position: {
         x:0,
@@ -228,7 +211,6 @@ window.addEventListener('keydown', ({ key }) => {
             break;
         case 'Enter':
             keys.enter.pressed = true
-            console.log('Enter key pressed');
             break;
         case 'j':          
             player.attack();
@@ -315,7 +297,7 @@ window.addEventListener('keyup', ({ key }) => {
 
 
 function clearCanvas() {
-    penn.fillStyle = "rgba(255, 255, 255, 0.1)";
+    penn.fillStyle = "rgba(255, 255, 255, 0.4)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -332,23 +314,15 @@ function mainLoop() {
         background.update();
         player2.update();
         player.update();
-        // projectileArray.forEach((projectile, index) => {
-        //     if (projectile.position.x + projectile.width >= canvas.width || projectile.position.x <= 0) {
-        //         setTimeout(() => {
-        //             projectileArray.splice(index, 1)
-        //         }, 0)
-        //     } else {
-        //         projectile.update()
-        //     }
-        // });
-        player.velocity.x = 0
-        player2.velocity.x = 0
+
+        player.velocity.x = 0;
+        player2.velocity.x = 0;
 
         // Player movement
         if(keys.a.pressed) {
             player.velocity.x = -8
             player.switchSprites('run')
-        } else if (keys.d.pressed){
+        } else if (keys.d.pressed) {
             player.velocity.x = 8
             player.switchSprites('run')
         } else {
@@ -367,12 +341,11 @@ function mainLoop() {
             Judgementcut.update()
         }
 
-
         // Enemy movement
         if (keys.ArrowLeft.pressed) {
             player2.velocity.x = -8
             player2.switchSprites('run')
-        } else if (keys.ArrowRight.pressed){
+        } else if (keys.ArrowRight.pressed) {
             player2.velocity.x = 8
             player2.switchSprites('run')
         } else {
@@ -391,30 +364,29 @@ function mainLoop() {
             Judgementcut.update()
         }
 
-
-        if ( (Judgementcut.position.x + Judgementcut.width >= 
-            player2.position.x && Judgementcut.position.x <= 
+        if ( (Judgementcut.position.x + Judgementcut.width >=
+            player2.position.x && Judgementcut.position.x <=
             player2.position.x + player2.width &&
-            Judgementcut.position.y + Judgementcut.height >= 
-            player2.position.y && Judgementcut.position.y <= 
-            player2.position.y + player2.height) 
+            Judgementcut.position.y + Judgementcut.height >=
+            player2.position.y && Judgementcut.position.y <=
+            player2.position.y + player2.height)
             && player.isAttacking && player.image == player.sprites.attack2.image
         ) {
             player.isAttacking = false
-            player2.health -= 10; 
+            player2.health -= 10;
             document.querySelector('#enemyHealth').style.width = player2.health +'%';
         }
 
-        if ( (Judgementcut.position.x + Judgementcut.width >= 
-            player.position.x && Judgementcut.position.x <= 
+        if ( (Judgementcut.position.x + Judgementcut.width >=
+            player.position.x && Judgementcut.position.x <=
             player.position.x + player.width &&
-            Judgementcut.position.y + Judgementcut.height >= 
-            player.position.y && Judgementcut.position.y <= 
-            player.position.y + player.height) 
+            Judgementcut.position.y + Judgementcut.height >=
+            player.position.y && Judgementcut.position.y <=
+            player.position.y + player.height)
             && player2.isAttacking && player2.image == player2.sprites.attack2.image
         ) {
             player2.isAttacking = false
-            player.health -= 10; 
+            player.health -= 10;
             document.querySelector('#playerHealth').style.width = player.health +'%';
         }
 
@@ -424,7 +396,7 @@ function mainLoop() {
                 rectangle1:player2,
                 rectangle2:player
             }) && 
-            player2.isAttacking && player2.framesCurrent === 6 || player2.framesCurrent === 8
+            player2.isAttacking && player2.framesCurrent === 6
         ) {
             player2.isAttacking = false
             player.health -= 5; 
@@ -437,7 +409,7 @@ function mainLoop() {
                 rectangle1: player,
                 rectangle2: player2
             }) && 
-            player.isAttacking && player.framesCurrent === 6 || player.framesCurrent === 8
+            player.isAttacking && player.framesCurrent === 6
         ) {
             player.isAttacking = false
             player2.health -= 5; 
@@ -453,21 +425,25 @@ function mainLoop() {
         if (player.isAttacking && player.framesCurrent === 6) {
             player.isAttacking = false
         }
+
+        
         
     }
     if (player2.health <= 0 || player.health <= 0) {
         clearCanvas();
         VergilThemeMusic.stop();
         determineWinner({
-            player: player, 
+            player: player,
             enemy: player2
         })
-        setTimeout(() => {
-            clearCanvas();
-            penn.font = "40px Cormorant Garamond, serif";
-            penn.fillStyle = 'black';
-            penn.fillText('Press ENTER To Reset', 0, ground);
-        }, 1000);
+        penn.font = "40px Cormorant Garamond, serif";
+        penn.fillStyle = 'black';
+        penn.fillText('Press ENTER To Reset', 0, ground);
+        console.log(keys.enter.pressed)
+        if (keys.enter.pressed) {
+            console.log('Ffasdwd')
+            reset();
+        }
     }
     if (secondsLeft <= 0) {
         // --- Stoppa huvudloopen när nedräkningen når 0 --- //
@@ -477,13 +453,13 @@ function mainLoop() {
             player: player,
             enemy: player2
         })
-        setTimeout(() => {
-            clearCanvas();
-            penn.font = "40px Cormorant Garamond, serif";
-            penn.fillStyle = 'black';
-            penn.fillText('Press ENTER To Reset', 0, ground);        
-            
-        }, 1000);
+        penn.font = "40px Cormorant Garamond, serif";
+        penn.fillStyle = 'black';
+        penn.fillText('Press ENTER To Reset', 0, ground);
+        if (keys.enter.pressed) {
+            console.log('Ffasdwd')
+            reset();
+        }
     }
 }
 

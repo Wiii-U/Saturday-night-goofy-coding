@@ -81,7 +81,6 @@ function pauseGame() {
     }
 }
 
-
 function reset() {
     window.location.reload()
 }
