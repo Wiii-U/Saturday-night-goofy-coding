@@ -297,7 +297,7 @@ window.addEventListener('keyup', ({ key }) => {
 
 
 function clearCanvas() {
-    penn.fillStyle = "rgba(255, 255, 255, 0.4)";
+    penn.fillStyle = "rgba(255, 255, 255, 1)";
     penn.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -436,14 +436,15 @@ function mainLoop() {
             player: player,
             enemy: player2
         })
-        penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'black';
-        penn.fillText('Press ENTER To Reset', 0, ground);
-        console.log(keys.enter.pressed)
-        if (keys.enter.pressed) {
-            console.log('Ffasdwd')
+        setTimeout(() => {
+            clearCanvas();
+            penn.font = "40px Cormorant Garamond, serif";
+            penn.fillStyle = 'black';
+            penn.fillText('Game will reset in 5 seconds....', canvas.mid_width - 80, canvas.mid_height);
+        }, 2000);
+        setTimeout(() => {
             reset();
-        }
+        }, 5000);
     }
     if (secondsLeft <= 0) {
         // --- Stoppa huvudloopen när nedräkningen når 0 --- //
@@ -453,13 +454,15 @@ function mainLoop() {
             player: player,
             enemy: player2
         })
-        penn.font = "40px Cormorant Garamond, serif";
-        penn.fillStyle = 'black';
-        penn.fillText('Press ENTER To Reset', 0, ground);
-        if (keys.enter.pressed) {
-            console.log('Ffasdwd')
+        setTimeout(() => {
+            clearCanvas();
+            penn.font = "40px Cormorant Garamond, serif";
+            penn.fillStyle = 'black';
+            penn.fillText('Game will reset in 5 seconds....', canvas.mid_width - 80, canvas.mid_height);
+        }, 2000);
+        setTimeout(() => {
             reset();
-        }
+        }, 5000);
     }
 }
 
