@@ -440,7 +440,7 @@ function mainLoop() {
             clearCanvas();
             penn.font = "40px Cormorant Garamond, serif";
             penn.fillStyle = 'black';
-            penn.fillText('Game will reset in 5 seconds....', canvas.mid_width - 80, canvas.mid_height);
+            penn.fillText('Game will reset in 5 seconds....', canvas.mid_width - 160, canvas.mid_height);
         }, 2000);
         setTimeout(() => {
             reset();
@@ -458,7 +458,7 @@ function mainLoop() {
             clearCanvas();
             penn.font = "40px Cormorant Garamond, serif";
             penn.fillStyle = 'black';
-            penn.fillText('Game will reset in 5 seconds....', canvas.mid_width - 80, canvas.mid_height);
+            penn.fillText('Game will reset in 5 seconds....', canvas.mid_width - 160, canvas.mid_height);
         }, 2000);
         setTimeout(() => {
             reset();
